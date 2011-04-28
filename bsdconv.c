@@ -160,7 +160,7 @@ py_bsdconv_info(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "k", &k))
 		return NULL;
 	p=(struct bsdconv_instance *) k;
-	r=Py_BuildValue("{sisi}","ierr",p->ierr,"oerr",p->oerr);
+	r=Py_BuildValue("{sisisi}","ierr",p->ierr,"oerr",p->oerr,"score",p->score);
 	return r;
 }
 
