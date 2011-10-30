@@ -2,18 +2,19 @@
 import sys
 import bsdconv
 
-p=bsdconv.create(sys.argv[1])
-if p==None:
-	print bsdconv.error()
+p=bsdconv.new(sys.argv[1])
+if not p:
+	print p.error()
+	del p
 	sys.exit()
-bsdconv.insert_phase(p,'normal_score',bsdconv.INTER,1);
-bsdconv.init(p)
+p.insert_phase('full',bsdconv.INTER,1);
+p.init()
 s=sys.stdin.read(1024)
 while s:
-	print bsdconv.conv_chunk(p,s),
+	print p.conv_chunk(s),
 	s=sys.stdin.read(1024)
 
-print bsdconv.conv_chunk_last(p,s)
+print p.conv_chunk_last(s)
 print '===================================='
-print bsdconv.info(p)
-bsdconv.destroy(p)
+print p.info()
+del p

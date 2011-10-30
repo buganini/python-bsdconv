@@ -19,26 +19,10 @@
 
 #define IBUFLEN 1024
 
-PyDoc_STRVAR(bsdconv_create_doc,
-"create(c)\n\
-\n\
-Create bsdconv instance.");
-
-static PyObject *
-py_bsdconv_create(PyObject *self, PyObject *args)
-{
-	char *c;
-	struct bsdconv_instance *r;
-
-	if (!PyArg_ParseTuple(args, "s", &c))
-		return NULL;
-	r=bsdconv_create(c);
-	if(r==NULL){
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
-	return Py_BuildValue("k",r);
-}
+typedef struct {
+	PyObject_HEAD
+	struct bsdconv_instance *ins;
+} Bsdconv;
 
 PyDoc_STRVAR(bsdconv_init_doc,
 "init(cd)\n\
@@ -48,113 +32,102 @@ Initialize/Reset bsdconv instance.");
 static PyObject *
 py_bsdconv_init(PyObject *self, PyObject *args)
 {
-	unsigned long k;
 	struct bsdconv_instance *ins;
 
-	if (!PyArg_ParseTuple(args, "k", &k))
-		return NULL;
-	ins=(struct bsdconv_instance *) k;
+	ins=((Bsdconv *) self)->ins;
 	bsdconv_init(ins);
 	Py_INCREF(Py_True);
 	return Py_True;
 }
 
 PyDoc_STRVAR(bsdconv_insert_phase_doc,
-"insert_phase(cd, conversion, phase_type, phasen)\n\
+"insert_phase(conversion, phase_type, phasen)\n\
 \n\
 Insert conversion phase into bsdconv instance.");
 
 static PyObject *
 py_bsdconv_insert_phase(PyObject *self, PyObject *args)
 {
-	unsigned long k;
 	struct bsdconv_instance *ins;
 	char *s;
 	int t;
 	int p;
 
-	if (!PyArg_ParseTuple(args, "kzii", &k, &s, &t, &p))
+	if (!PyArg_ParseTuple(args, "zii", &s, &t, &p))
 		return NULL;
-	ins=(struct bsdconv_instance *) k;
+	ins=((Bsdconv *) self)->ins;
 	return Py_BuildValue("i", bsdconv_insert_phase(ins, s, t, p));
 }
 
 PyDoc_STRVAR(bsdconv_insert_codec_doc,
-"insert_codec(cd, conversion, phasen, codecn)\n\
+"insert_codec(conversion, phasen, codecn)\n\
 \n\
 Insert conversion codec into bsdconv instance.");
 
 static PyObject *
 py_bsdconv_insert_codec(PyObject *self, PyObject *args)
 {
-	unsigned long k;
 	struct bsdconv_instance *ins;
 	char *s;
 	int p;
 	int c;
 
-	if (!PyArg_ParseTuple(args, "kzii", &k, &s, &p, &c))
+	if (!PyArg_ParseTuple(args, "zii", &s, &p, &c))
 		return NULL;
-	ins=(struct bsdconv_instance *) k;
+	ins=((Bsdconv *) self)->ins;
 	return Py_BuildValue("i", bsdconv_insert_codec(ins, s, p, c));
 }
 PyDoc_STRVAR(bsdconv_replace_phase_doc,
-"replace_phase(cd, conversion, phase_type, phasen)\n\
+"replace_phase(conversion, phase_type, phasen)\n\
 \n\
 Replace conversion phase in the bsdconv instance.");
 
 static PyObject *
 py_bsdconv_replace_phase(PyObject *self, PyObject *args)
 {
-	unsigned long k;
 	struct bsdconv_instance *ins;
 	char *s;
 	int t;
 	int p;
 
-	if (!PyArg_ParseTuple(args, "kzii", &k, &s, &t, &p))
+	if (!PyArg_ParseTuple(args, "zii", &s, &t, &p))
 		return NULL;
-	ins=(struct bsdconv_instance *) k;
+	ins=((Bsdconv *) self)->ins;
 	return Py_BuildValue("i", bsdconv_replace_phase(ins, s, t, p));
 }
 
 PyDoc_STRVAR(bsdconv_replace_codec_doc,
-"replace_codec(cd, conversion, phasen, codecn)\n\
+"replace_codec(conversion, phasen, codecn)\n\
 \n\
 Replace conversion codec in the bsdconv instance.");
 
 static PyObject *
 py_bsdconv_replace_codec(PyObject *self, PyObject *args)
 {
-	unsigned long k;
 	struct bsdconv_instance *ins;
 	char *s;
 	int p;
 	int c;
 
-	if (!PyArg_ParseTuple(args, "kzii", &k, &s, &p, &c))
+	if (!PyArg_ParseTuple(args, "zii", &s, &p, &c))
 		return NULL;
-	ins=(struct bsdconv_instance *) k;
+	ins=((Bsdconv *) self)->ins;
 	return Py_BuildValue("i", bsdconv_replace_codec(ins, s, p, c));
 }
 
-PyDoc_STRVAR(bsdconv_destroy_doc,
-"destroy(p)\n\
+PyDoc_STRVAR(bsdconv_dealloc_doc,
+"dealloc(p)\n\
 \n\
-Destroy bsdconv instance.");
+Dealloc bsdconv instance.");
 
 static PyObject *
-py_bsdconv_destroy(PyObject *self, PyObject *args)
+py_bsdconv_dealloc(PyObject *self)
 {
-	unsigned long k;
-	struct bsdconv_instance *r;
-	if (!PyArg_ParseTuple(args, "k", &k))
-		return NULL;
-	r=(struct bsdconv_instance *) k;
-	bsdconv_destroy(r);
-
-	Py_INCREF(Py_True);
-	return Py_True;
+	struct bsdconv_instance *ins;
+	ins=((Bsdconv *) self)->ins;
+	if(ins!=NULL)
+		bsdconv_destroy(ins);
+	PyMem_DEL(self);
 }
 
 PyDoc_STRVAR(bsdconv_conv_doc,
@@ -165,14 +138,13 @@ Perform conversion.");
 static PyObject *
 py_bsdconv_conv(PyObject *self, PyObject *args)
 {
-	unsigned long k;
 	static PyObject *r;
 	struct bsdconv_instance *ins;
 	char *s;
 	int l;
-	if (!PyArg_ParseTuple(args, "kz#", &k,&s,&l))
+	if (!PyArg_ParseTuple(args, "z#", &s,&l))
 		return NULL;
-	ins=(struct bsdconv_instance *) k;
+	ins=((Bsdconv *) self)->ins;
 
 	bsdconv_init(ins);
 	ins->output_mode=BSDCONV_AUTOMALLOC;
@@ -195,14 +167,13 @@ Perform conversion without initialization and flushing");
 static PyObject *
 py_bsdconv_conv_chunk(PyObject *self, PyObject *args)
 {
-	unsigned long k;
 	static PyObject *r;
 	struct bsdconv_instance *ins;
 	char *s;
 	int l;
-	if (!PyArg_ParseTuple(args, "kz#", &k,&s,&l))
+	if (!PyArg_ParseTuple(args, "z#", &s,&l))
 		return NULL;
-	ins=(struct bsdconv_instance *) k;
+	ins=((Bsdconv *) self)->ins;
 
 	ins->output_mode=BSDCONV_AUTOMALLOC;
 	ins->input.data=s;
@@ -223,14 +194,13 @@ Perform conversion without initialization");
 static PyObject *
 py_bsdconv_conv_chunk_last(PyObject *self, PyObject *args)
 {
-	unsigned long k;
 	static PyObject *r;
 	struct bsdconv_instance *ins;
 	char *s;
 	int l;
-	if (!PyArg_ParseTuple(args, "kz#", &k,&s,&l))
+	if (!PyArg_ParseTuple(args, "z#", &s, &l))
 		return NULL;
-	ins=(struct bsdconv_instance *) k;
+	ins=((Bsdconv *) self)->ins;
 
 	ins->output_mode=BSDCONV_AUTOMALLOC;
 	ins->input.data=s;
@@ -252,7 +222,6 @@ Perform conversion with given filename.");
 static PyObject *
 py_bsdconv_conv_file(PyObject *self, PyObject *args)
 {
-	unsigned long k;
 	struct bsdconv_instance *ins;
 	char *s1, *s2;
 	FILE *inf, *otf;
@@ -260,9 +229,9 @@ py_bsdconv_conv_file(PyObject *self, PyObject *args)
 	char *tmp;
 	int fd;
 
-	if (!PyArg_ParseTuple(args, "kss", &k,&s1,&s2))
+	if (!PyArg_ParseTuple(args, "ss", &s1, &s2))
 		return NULL;
-	ins=(struct bsdconv_instance *) k;
+	ins=((Bsdconv *) self)->ins;
 	inf=fopen(s1,"r");
 	if(!inf){
 		Py_INCREF(Py_None);
@@ -310,13 +279,10 @@ py_bsdconv_conv_file(PyObject *self, PyObject *args)
 static PyObject *
 py_bsdconv_info(PyObject *self, PyObject *args)
 {
-	unsigned long k;
 	static PyObject *r;
-	struct bsdconv_instance *p;
-	if (!PyArg_ParseTuple(args, "k", &k))
-		return NULL;
-	p=(struct bsdconv_instance *) k;
-	r=Py_BuildValue("{sisisi}","ierr",p->ierr,"oerr",p->oerr,"score",p->score);
+	struct bsdconv_instance *ins;
+	ins=((Bsdconv *) self)->ins;
+	r=Py_BuildValue("{sisisi}","ierr",ins->ierr,"oerr",ins->oerr,"score",ins->score);
 	return r;
 }
 
@@ -331,33 +297,94 @@ py_bsdconv_error(PyObject *self, PyObject *args)
 	return r;
 }
 
-static PyMethodDef bsdconv_methods[] = {
-	{"create",	py_bsdconv_create,	METH_VARARGS,
-		PyDoc_STR("create(conversion) -> Create bsdconv instance")},
+int
+py_bsdconv_valid(PyObject *self, PyObject *args)
+{
+	struct bsdconv_instance *ins;
+	ins=((Bsdconv *) self)->ins;
+	
+	if(ins!=NULL)
+		return 1;
+	else
+		return 0;
+}
+
+static PyMethodDef Bsdconv_methods[] = {
 	{"init",	py_bsdconv_init,	METH_VARARGS,
 		PyDoc_STR("init(cd) -> Initialize/Reset bsdconv instance")},
-	{"destroy",	py_bsdconv_destroy,	METH_VARARGS,
-		PyDoc_STR("destroy(cd) -> Destroy bsdconv instance")},
 	{"insert_phase",	py_bsdconv_insert_phase,	METH_VARARGS,
-		PyDoc_STR("insert_phase(cd, conversion, phase_type, phasen) -> Insert conversion phase into bsdconv instance")},
+		PyDoc_STR("insert_phase(conversion, phase_type, phasen) -> Insert conversion phase into bsdconv instance")},
 	{"insert_codec",	py_bsdconv_insert_codec,	METH_VARARGS,
-		PyDoc_STR("insert_phase(cd, conversion, phasen, codecn) -> Insert conversion codec into bsdconv instance")},
+		PyDoc_STR("insert_phase(conversion, phasen, codecn) -> Insert conversion codec into bsdconv instance")},
 	{"replace_phase",	py_bsdconv_insert_phase,	METH_VARARGS,
-		PyDoc_STR("replace_phase(cd, conversion, phase_type, phasen) -> Replace conversion phase in the bsdconv instance")},
+		PyDoc_STR("replace_phase(conversion, phase_type, phasen) -> Replace conversion phase in the bsdconv instance")},
 	{"replace_codec",	py_bsdconv_insert_codec,	METH_VARARGS,
-		PyDoc_STR("replace_phase(cd, conversion, phasen, codecn) -> Replace conversion codec in the bsdconv instance")},
+		PyDoc_STR("replace_phase(conversion, phasen, codecn) -> Replace conversion codec in the bsdconv instance")},
 	{"conv",	py_bsdconv_conv,	METH_VARARGS,
-		PyDoc_STR("conv(cd, s) -> Perform conversion")},
+		PyDoc_STR("conv(s) -> Perform conversion")},
 	{"conv_chunk",	py_bsdconv_conv_chunk,	METH_VARARGS,
-		PyDoc_STR("conv_chunk(cd, s) -> Perform conversion without initializing and flushing")},
+		PyDoc_STR("conv_chunk(s) -> Perform conversion without initializing and flushing")},
 	{"conv_chunk_last",	py_bsdconv_conv_chunk_last,	METH_VARARGS,
-		PyDoc_STR("conv_chunk_last(cd, s) -> Perform conversion without initializing")},
+		PyDoc_STR("conv_chunk_last(s) -> Perform conversion without initializing")},
 	{"conv_file",	py_bsdconv_conv_file,	METH_VARARGS,
-		PyDoc_STR("conv_file(cd, from_file, to_file) -> Perform conversion with given filename")},
+		PyDoc_STR("conv_file(from_file, to_file) -> Perform conversion with given filename")},
 	{"info",	py_bsdconv_info,	METH_VARARGS,
 		PyDoc_STR("info(cd) -> Return conversion info")},
 	{"error",	py_bsdconv_error,	METH_VARARGS,
 		PyDoc_STR("error() -> Return error message")},
+	{NULL,		NULL}		/* sentinel */
+};
+
+static PyNumberMethods Bsdconv_number_methods = {
+	.nb_nonzero = (inquiry) py_bsdconv_valid
+};
+
+static PyObject *
+py_bsdconv_getattr(PyObject *self, char *attrname)
+{
+	return Py_FindMethod(Bsdconv_methods, self, attrname);
+}
+
+static PyTypeObject Bsdconv_Type = {
+	PyObject_HEAD_INIT(NULL)
+	.tp_name="Bsdconv",
+	.tp_basicsize=sizeof(Bsdconv),
+	.tp_dealloc = (destructor)py_bsdconv_dealloc,
+	.tp_getattr = (getattrfunc)py_bsdconv_getattr,
+	.tp_methods = Bsdconv_methods,
+	.tp_as_number = &Bsdconv_number_methods
+};
+
+PyDoc_STRVAR(bsdconv_create_doc,
+"create(c)\n\
+\n\
+Create bsdconv instance.");
+
+static PyObject *
+py_bsdconv_NEW(const char *c)
+{
+	Bsdconv *object = NULL;
+	object = PyObject_NEW(Bsdconv, &Bsdconv_Type);
+	if (object != NULL)
+		object->ins = bsdconv_create(c);
+	return (PyObject *)object;
+}
+
+static PyObject *
+py_bsdconv_new(PyObject *self, PyObject *args)
+{
+	PyObject *ret = NULL;
+	char *c;
+	if (PyArg_ParseTuple(args, "s", &c))
+		ret=py_bsdconv_NEW(c);
+	else
+		ret=py_bsdconv_NEW("");
+	return ret;
+}
+
+static PyMethodDef module_methods[] = {
+	{"new",	py_bsdconv_new,	METH_VARARGS,
+		PyDoc_STR("new(conversion) -> Create bsdconv instance")},
 	{NULL,		NULL}		/* sentinel */
 };
 
@@ -370,7 +397,7 @@ PyMODINIT_FUNC
 initbsdconv(void)
 {
 	PyObject *m;
-	m = Py_InitModule3("bsdconv", bsdconv_methods, module_doc);
+	m = Py_InitModule3("bsdconv", module_methods, module_doc);
 	PyModule_AddIntConstant(m, "FROM", FROM);
 	PyModule_AddIntConstant(m, "INTER", INTER);
 	PyModule_AddIntConstant(m, "TO", TO);

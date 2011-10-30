@@ -2,12 +2,13 @@
 import sys
 import bsdconv
 
-p=bsdconv.create(sys.argv[1])
-if p==None:
-	print bsdconv.error()
+p=bsdconv.new(sys.argv[1])
+if not p:
+	print p.error()
+	del p
 	sys.exit()
 s=sys.stdin.read()
-print bsdconv.conv(p,s)
+print p.conv(s)
 print '===================================='
-print bsdconv.info(p)
-bsdconv.destroy(p)
+print p.info()
+del p
