@@ -352,7 +352,11 @@ py_bsdconv_getattr(PyObject *self, char *attrname)
 #endif
 
 static PyTypeObject Bsdconv_Type = {
+#if PY_MAJOR_VERSION < 3
 	PyObject_HEAD_INIT(NULL)
+#else
+	PyVarObject_HEAD_INIT(NULL, 0)
+#endif
 	.tp_name="Bsdconv",
 	.tp_basicsize=sizeof(Bsdconv),
 	.tp_dealloc = (destructor)py_bsdconv_dealloc,
