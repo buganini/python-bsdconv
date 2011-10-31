@@ -390,7 +390,13 @@ py_bsdconv_new(PyObject *self, PyObject *args)
 	return ret;
 }
 
-#if PY_MAJOR_VERSION >= 3
+#if PY_MAJOR_VERSION < 3
+static PyMethodDef module_methods[] = {
+	{"new",	py_bsdconv_new,	METH_VARARGS,
+		PyDoc_STR("new(conversion) -> Create bsdconv instance")},
+	{NULL,		NULL}		/* sentinel */
+};
+#else
 static PyModuleDef Bsdconv_Module = {
 	PyModuleDef_HEAD_INIT,
 	"bsdconv",
@@ -399,12 +405,6 @@ static PyModuleDef Bsdconv_Module = {
 	NULL, NULL, NULL, NULL, NULL
 };
 #endif
-
-static PyMethodDef module_methods[] = {
-	{"new",	py_bsdconv_new,	METH_VARARGS,
-		PyDoc_STR("new(conversion) -> Create bsdconv instance")},
-	{NULL,		NULL}		/* sentinel */
-};
 
 PyDoc_STRVAR(module_doc,
 "BSD licensed charset/encoding converter library");
@@ -424,6 +424,9 @@ PyInit_bsdconv(void)
 	if (m == NULL)
 		return;
 #else
+	Bsdconv_Type.tp_new = (newfunc)py_bsdconv_new;
+	if (PyType_Ready(&Bsdconv_Type) < 0)
+		return NULL;
 	m = PyModule_Create(&Bsdconv_Module);
 	if (m == NULL)
 		return NULL;
