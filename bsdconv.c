@@ -127,7 +127,7 @@ py_bsdconv_dealloc(PyObject *self)
 	ins=((Bsdconv *) self)->ins;
 	if(ins!=NULL)
 		bsdconv_destroy(ins);
-	PyMem_DEL(self);
+	PyObject_Del(self);
 }
 
 PyDoc_STRVAR(bsdconv_conv_doc,
