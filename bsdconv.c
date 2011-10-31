@@ -377,6 +377,7 @@ py_bsdconv_NEW(const char *c)
 {
 	Bsdconv *object = NULL;
 	object = PyObject_NEW(Bsdconv, &Bsdconv_Type);
+	object->ins=NULL;
 	if (object != NULL)
 		object->ins = bsdconv_create(c);
 	return (PyObject *)object;
@@ -429,15 +430,20 @@ PyInit_bsdconv(void)
 	if (m == NULL)
 		return;
 #else
-	if (PyType_Ready(&Bsdconv_Type) < 0)
+	if (PyType_Ready(&Bsdconv_Type) < 0){
 		return NULL;
+	}
 	m = PyModule_Create(&Bsdconv_Module);
-	if (m == NULL)
+	if (m == NULL){
 		return NULL;
+	}
 #endif
 	Py_INCREF(&Bsdconv_Type);
 	PyModule_AddObject(m, "Bsdconv", (PyObject *)&Bsdconv_Type);
 	PyModule_AddIntConstant(m, "FROM", FROM);
 	PyModule_AddIntConstant(m, "INTER", INTER);
 	PyModule_AddIntConstant(m, "TO", TO);
+#if PY_MAJOR_VERSION >= 3
+	return m;
+#endif
 }
