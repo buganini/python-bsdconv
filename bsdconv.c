@@ -368,7 +368,7 @@ static PyTypeObject Bsdconv_Type = {
 };
 
 PyDoc_STRVAR(bsdconv_create_doc,
-"create(c)\n\
+"new(c)\n\
 \n\
 Create bsdconv instance.");
 
@@ -396,8 +396,6 @@ py_bsdconv_new(PyObject *self, PyObject *args)
 
 #if PY_MAJOR_VERSION < 3
 static PyMethodDef module_methods[] = {
-	{"new",	py_bsdconv_new,	METH_VARARGS,
-		PyDoc_STR("new(conversion) -> Create bsdconv instance")},
 	{NULL,		NULL}		/* sentinel */
 };
 #else
@@ -423,22 +421,22 @@ PyInit_bsdconv(void)
 #endif
 {
 	PyObject *m;
+	Bsdconv_Type.tp_new = (newfunc)py_bsdconv_new;
 #if PY_MAJOR_VERSION < 3
+	if (PyType_Ready(&Bsdconv_Type) < 0)
+		return;
 	m = Py_InitModule3("bsdconv", module_methods, module_doc);
 	if (m == NULL)
 		return;
 #else
-	Bsdconv_Type.tp_new = (newfunc)py_bsdconv_new;
 	if (PyType_Ready(&Bsdconv_Type) < 0)
 		return NULL;
 	m = PyModule_Create(&Bsdconv_Module);
 	if (m == NULL)
 		return NULL;
 #endif
-#if PY_MAJOR_VERSION >= 3
 	Py_INCREF(&Bsdconv_Type);
 	PyModule_AddObject(m, "Bsdconv", (PyObject *)&Bsdconv_Type);
-#endif
 	PyModule_AddIntConstant(m, "FROM", FROM);
 	PyModule_AddIntConstant(m, "INTER", INTER);
 	PyModule_AddIntConstant(m, "TO", TO);
