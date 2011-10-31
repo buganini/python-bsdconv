@@ -336,21 +336,29 @@ static PyMethodDef Bsdconv_methods[] = {
 };
 
 static PyNumberMethods Bsdconv_number_methods = {
+#if PY_MAJOR_VERSION < 3
 	.nb_nonzero = (inquiry) py_bsdconv_valid
+#else
+	.nb_bool = (inquiry) py_bsdconv_valid
+#endif
 };
 
+#if PY_MAJOR_VERSION < 3
 static PyObject *
 py_bsdconv_getattr(PyObject *self, char *attrname)
 {
 	return Py_FindMethod(Bsdconv_methods, self, attrname);
 }
+#endif
 
 static PyTypeObject Bsdconv_Type = {
 	PyObject_HEAD_INIT(NULL)
 	.tp_name="Bsdconv",
 	.tp_basicsize=sizeof(Bsdconv),
 	.tp_dealloc = (destructor)py_bsdconv_dealloc,
+#if PY_MAJOR_VERSION < 3
 	.tp_getattr = (getattrfunc)py_bsdconv_getattr,
+#endif
 	.tp_methods = Bsdconv_methods,
 	.tp_as_number = &Bsdconv_number_methods
 };
@@ -382,6 +390,16 @@ py_bsdconv_new(PyObject *self, PyObject *args)
 	return ret;
 }
 
+#if PY_MAJOR_VERSION >= 3
+static PyModuleDef Bsdconv_Module = {
+	PyModuleDef_HEAD_INIT,
+	"bsdconv",
+	"BSD licensed charset/encoding converter library",
+	-1,
+	NULL, NULL, NULL, NULL, NULL
+};
+#endif
+
 static PyMethodDef module_methods[] = {
 	{"new",	py_bsdconv_new,	METH_VARARGS,
 		PyDoc_STR("new(conversion) -> Create bsdconv instance")},
@@ -394,13 +412,27 @@ PyDoc_STRVAR(module_doc,
 /* Initialization function for the module (*must* be called initxx) */
 
 PyMODINIT_FUNC
+#if PY_MAJOR_VERSION < 3
 initbsdconv(void)
+#else
+PyInit_bsdconv(void)
+#endif
 {
 	PyObject *m;
+#if PY_MAJOR_VERSION < 3
 	m = Py_InitModule3("bsdconv", module_methods, module_doc);
+	if (m == NULL)
+		return;
+#else
+	m = PyModule_Create(&Bsdconv_Module);
+	if (m == NULL)
+		return NULL;
+#endif
+#if PY_MAJOR_VERSION >= 3
+	Py_INCREF(&Bsdconv_Type);
+	PyModule_AddObject(m, "Bsdconv", (PyObject *)&Bsdconv_Type);
+#endif
 	PyModule_AddIntConstant(m, "FROM", FROM);
 	PyModule_AddIntConstant(m, "INTER", INTER);
 	PyModule_AddIntConstant(m, "TO", TO);
-	if (m == NULL)
-		return;
 }
