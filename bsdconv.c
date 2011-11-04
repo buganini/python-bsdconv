@@ -131,7 +131,7 @@ py_bsdconv_dealloc(PyObject *self)
 }
 
 PyDoc_STRVAR(bsdconv_conv_doc,
-"conv(p,s)\n\
+"conv(s)\n\
 \n\
 Perform conversion.");
 
@@ -160,7 +160,7 @@ py_bsdconv_conv(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(bsdconv_conv_chunk_doc,
-"conv_chunk(p,s)\n\
+"conv_chunk(s)\n\
 \n\
 Perform conversion without initialization and flushing");
 
@@ -187,7 +187,7 @@ py_bsdconv_conv_chunk(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(bsdconv_conv_chunk_last_doc,
-"conv_chunk_last(p,s)\n\
+"conv_chunk_last(s)\n\
 \n\
 Perform conversion without initialization");
 
@@ -215,7 +215,7 @@ py_bsdconv_conv_chunk_last(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(bsdconv_conv_file_doc,
-"conv_file(p,s,s)\n\
+"conv_file(s,s)\n\
 \n\
 Perform conversion with given filename.");
 
