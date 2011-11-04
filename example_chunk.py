@@ -2,7 +2,7 @@
 import sys
 import bsdconv
 
-p=bsdconv.new(sys.argv[1])
+p=bsdconv.Bsdconv(sys.argv[1])
 if not p:
 	print p.error()
 	del p
