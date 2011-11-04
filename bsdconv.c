@@ -395,17 +395,72 @@ py_bsdconv_new(PyObject *self, PyObject *args)
 	return ret;
 }
 
-#if PY_MAJOR_VERSION < 3
+PyDoc_STRVAR(bsdconv_codecs_list_doc,
+"codecs_list(type,codec)\n\
+\n\
+list codecs.");
+
+static PyObject *
+py_bsdconv_codecs_list(PyObject *self, PyObject *args)
+{
+	PyObject *ret=PyDict_New();
+	PyObject *tmp;
+	int i;
+	char *type[]={"from","inter","to"};
+	char **list;
+	char **p;
+	list=bsdconv_codecs_list();
+	p=list;
+	for(i=0;i<3;++i){
+		tmp=PyList_New(0);
+		while(*p!=NULL){
+			PyList_Append(tmp, Py_BuildValue("s", *p));
+			free(*p);
+			p+=1;
+		}
+		PyDict_SetItemString(ret, type[i], tmp);
+		p+=1;
+	}
+	free(list);
+	return ret;
+}
+
+PyDoc_STRVAR(bsdconv_codec_lookup_doc,
+"codec_lookup(type, codec)\n\
+\n\
+check/solve codec and codec alias.");
+
+static PyObject *
+py_bsdconv_codec_lookup(PyObject *self, PyObject *args)
+{
+	PyObject *r;
+	struct bsdconv_instance *ins;
+	char *s;
+	char *res;
+	int type;
+	if (!PyArg_ParseTuple(args, "iz", &type, &s))
+		return NULL;
+	res=bsdconv_codec_lookup(type, s);
+	r=Py_BuildValue("s", res);
+	free(res);
+	return r;
+}
+
 static PyMethodDef module_methods[] = {
+	{"codecs_list",	py_bsdconv_codecs_list,	METH_VARARGS,
+		PyDoc_STR("codecs_list() -> list codecs")},
+	{"codec_lookup",	py_bsdconv_codec_lookup,	METH_VARARGS,
+		PyDoc_STR("codec_lookup(type, codec) -> check/solve codec and codec alias")},
 	{NULL,		NULL}		/* sentinel */
 };
-#else
+#if PY_MAJOR_VERSION >= 3
 static PyModuleDef Bsdconv_Module = {
 	PyModuleDef_HEAD_INIT,
 	"bsdconv",
 	"BSD licensed charset/encoding converter library",
 	-1,
-	NULL, NULL, NULL, NULL, NULL
+	module_methods,
+	NULL, NULL, NULL, NULL
 };
 #endif
 
