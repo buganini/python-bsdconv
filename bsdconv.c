@@ -351,6 +351,28 @@ py_bsdconv_getattr(PyObject *self, char *attrname)
 }
 #endif
 
+static PyObject *
+py_bsdconv_repr(PyObject *self, char *attrname)
+{
+	static PyObject *r;
+	char *s;
+	int len=32;
+	struct bsdconv_instance *ins;
+	ins=((Bsdconv *) self)->ins;
+	if(ins==NULL){
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	s=bsdconv_pack(ins);
+	len+=strlen(s);
+	char buf[len];
+	sprintf(buf, "Bsdconv(\"%s\") at %p", s, ins);
+	r=Py_BuildValue("s", buf);
+	free(s);
+	return r;
+}
+
 static PyTypeObject Bsdconv_Type = {
 #if PY_MAJOR_VERSION < 3
 	PyObject_HEAD_INIT(NULL)
@@ -363,6 +385,7 @@ static PyTypeObject Bsdconv_Type = {
 #if PY_MAJOR_VERSION < 3
 	.tp_getattr = (getattrfunc)py_bsdconv_getattr,
 #endif
+	.tp_repr = (reprfunc)py_bsdconv_repr,
 	.tp_methods = Bsdconv_methods,
 	.tp_as_number = &Bsdconv_number_methods
 };
@@ -431,26 +454,27 @@ PyDoc_STRVAR(bsdconv_codec_lookup_doc,
 check/solve codec and codec alias.");
 
 static PyObject *
-py_bsdconv_codec_lookup(PyObject *self, PyObject *args)
+py_bsdconv_codec_check(PyObject *self, PyObject *args)
 {
 	PyObject *r;
 	struct bsdconv_instance *ins;
 	char *s;
-	char *res;
 	int type;
 	if (!PyArg_ParseTuple(args, "iz", &type, &s))
 		return NULL;
-	res=bsdconv_codec_lookup(type, s);
-	r=Py_BuildValue("s", res);
-	free(res);
+	if(bsdconv_codec_check(type, s))
+		r=Py_True;
+	else
+		r=Py_True;
+	Py_INCREF(r);
 	return r;
 }
 
 static PyMethodDef module_methods[] = {
 	{"codecs_list",	py_bsdconv_codecs_list,	METH_VARARGS,
 		PyDoc_STR("codecs_list() -> list codecs")},
-	{"codec_lookup",	py_bsdconv_codec_lookup,	METH_VARARGS,
-		PyDoc_STR("codec_lookup(type, codec) -> check/solve codec and codec alias")},
+	{"codec_check",	py_bsdconv_codec_check,	METH_VARARGS,
+		PyDoc_STR("codec_check(type, codec) -> check/solve codec and codec alias")},
 	{NULL,		NULL}		/* sentinel */
 };
 #if PY_MAJOR_VERSION >= 3
