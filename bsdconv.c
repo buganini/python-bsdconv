@@ -448,10 +448,10 @@ py_bsdconv_codecs_list(PyObject *self, PyObject *args)
 	return ret;
 }
 
-PyDoc_STRVAR(bsdconv_codec_lookup_doc,
-"codec_lookup(type, codec)\n\
+PyDoc_STRVAR(bsdconv_codec_check_doc,
+"codec_check(type, codec)\n\
 \n\
-check/solve codec and codec alias.");
+check if a codec is available.");
 
 static PyObject *
 py_bsdconv_codec_check(PyObject *self, PyObject *args)
