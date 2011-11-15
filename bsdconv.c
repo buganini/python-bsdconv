@@ -465,7 +465,7 @@ py_bsdconv_codec_check(PyObject *self, PyObject *args)
 	if(bsdconv_codec_check(type, s))
 		r=Py_True;
 	else
-		r=Py_True;
+		r=Py_False;
 	Py_INCREF(r);
 	return r;
 }
