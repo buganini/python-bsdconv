@@ -417,7 +417,7 @@ py_bsdconv_new(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(bsdconv_codecs_list_doc,
-"codecs_list(type,codec)\n\
+"codecs_list()\n\
 \n\
 list codecs.");
 
@@ -474,7 +474,7 @@ static PyMethodDef module_methods[] = {
 	{"codecs_list",	py_bsdconv_codecs_list,	METH_VARARGS,
 		PyDoc_STR("codecs_list() -> list codecs")},
 	{"codec_check",	py_bsdconv_codec_check,	METH_VARARGS,
-		PyDoc_STR("codec_check(type, codec) -> check/solve codec and codec alias")},
+		PyDoc_STR("codec_check(type, codec) -> check if a codec is available")},
 	{NULL,		NULL}		/* sentinel */
 };
 #if PY_MAJOR_VERSION >= 3
