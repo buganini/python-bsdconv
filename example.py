@@ -4,7 +4,7 @@ import bsdconv
 
 p=bsdconv.Bsdconv(sys.argv[1])
 if not p:
-	print(p.error())
+	print(bsdconv.error())
 	del p
 	sys.exit()
 s=sys.stdin.read()

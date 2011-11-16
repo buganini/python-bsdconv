@@ -330,8 +330,6 @@ static PyMethodDef Bsdconv_methods[] = {
 		PyDoc_STR("conv_file(from_file, to_file) -> Perform conversion with given filename")},
 	{"info",	py_bsdconv_info,	METH_VARARGS,
 		PyDoc_STR("info(cd) -> Return conversion info")},
-	{"error",	py_bsdconv_error,	METH_VARARGS,
-		PyDoc_STR("error() -> Return error message")},
 	{NULL,		NULL}		/* sentinel */
 };
 
@@ -471,6 +469,8 @@ py_bsdconv_codec_check(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef module_methods[] = {
+	{"error",	py_bsdconv_error,	METH_VARARGS,
+		PyDoc_STR("error() -> Return error message")},
 	{"codecs_list",	py_bsdconv_codecs_list,	METH_VARARGS,
 		PyDoc_STR("codecs_list() -> list codecs")},
 	{"codec_check",	py_bsdconv_codec_check,	METH_VARARGS,
