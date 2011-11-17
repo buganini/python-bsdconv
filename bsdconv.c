@@ -417,29 +417,24 @@ py_bsdconv_new(PyObject *self, PyObject *args)
 }
 
 PyDoc_STRVAR(bsdconv_codecs_list_doc,
-"codecs_list()\n\
+"codecs_list(type)\n\
 \n\
 list codecs.");
 
 static PyObject *
 py_bsdconv_codecs_list(PyObject *self, PyObject *args)
 {
-	PyObject *ret=PyDict_New();
-	PyObject *tmp;
-	int i;
-	char *type[]={"from","inter","to"};
+	PyObject *ret=PyList_New(0);
 	char **list;
 	char **p;
-	list=bsdconv_codecs_list();
+	int phase_type;
+	if (!PyArg_ParseTuple(args, "i", &phase_type))
+		return NULL;
+	list=bsdconv_codecs_list(phase_type);
 	p=list;
-	for(i=0;i<3;++i){
-		tmp=PyList_New(0);
-		while(*p!=NULL){
-			PyList_Append(tmp, Py_BuildValue("s", *p));
-			free(*p);
-			p+=1;
-		}
-		PyDict_SetItemString(ret, type[i], tmp);
+	while(*p!=NULL){
+		PyList_Append(ret, Py_BuildValue("s", *p));
+		free(*p);
 		p+=1;
 	}
 	free(list);
