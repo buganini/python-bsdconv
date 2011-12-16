@@ -276,6 +276,127 @@ py_bsdconv_conv_file(PyObject *self, PyObject *args)
 	return Py_True;
 }
 
+PyDoc_STRVAR(bsdconv_testconv_doc,
+"testconv(s)\n\
+\n\
+Perform test conversion.");
+
+static PyObject *
+py_bsdconv_testconv(PyObject *self, PyObject *args)
+{
+	static PyObject *r;
+	struct bsdconv_instance *ins;
+	char *s;
+	int l;
+	if (!PyArg_ParseTuple(args, "z#", &s,&l))
+		return NULL;
+	ins=((Bsdconv *) self)->ins;
+
+	bsdconv_init(ins);
+	ins->output_mode=BSDCONV_NULL;
+	ins->input.data=s;
+	ins->input.len=l;
+	ins->input.flags=0;
+	ins->flush=1;
+	bsdconv(ins);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyDoc_STRVAR(bsdconv_testconv_chunk_doc,
+"testconv_chunk(s)\n\
+\n\
+Perform test conversion without initialization and flushing");
+
+static PyObject *
+py_bsdconv_testconv_chunk(PyObject *self, PyObject *args)
+{
+	static PyObject *r;
+	struct bsdconv_instance *ins;
+	char *s;
+	int l;
+	if (!PyArg_ParseTuple(args, "z#", &s,&l))
+		return NULL;
+	ins=((Bsdconv *) self)->ins;
+
+	ins->output_mode=BSDCONV_NULL;
+	ins->input.data=s;
+	ins->input.len=l;
+	ins->input.flags=0;
+	bsdconv(ins);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyDoc_STRVAR(bsdconv_testconv_chunk_last_doc,
+"testconv_chunk_last(s)\n\
+\n\
+Perform test conversion without initialization");
+
+static PyObject *
+py_bsdconv_testconv_chunk_last(PyObject *self, PyObject *args)
+{
+	static PyObject *r;
+	struct bsdconv_instance *ins;
+	char *s;
+	int l;
+	if (!PyArg_ParseTuple(args, "z#", &s, &l))
+		return NULL;
+	ins=((Bsdconv *) self)->ins;
+
+	ins->output_mode=BSDCONV_NULL;
+	ins->input.data=s;
+	ins->input.len=l;
+	ins->input.flags=0;
+	ins->flush=1;
+	bsdconv(ins);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+PyDoc_STRVAR(bsdconv_testconv_file_doc,
+"testconv_file(s)\n\
+\n\
+Perform test conversion with given filename.");
+
+static PyObject *
+py_bsdconv_testconv_file(PyObject *self, PyObject *args)
+{
+	struct bsdconv_instance *ins;
+	char *s1;
+	FILE *inf;
+	char *in;
+
+	if (!PyArg_ParseTuple(args, "s", &s1))
+		return NULL;
+	ins=((Bsdconv *) self)->ins;
+	inf=fopen(s1,"r");
+	if(!inf){
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	bsdconv_init(ins);
+	do{
+		in=malloc(IBUFLEN);
+		ins->input.data=in;
+		ins->input.len=fread(in, 1, IBUFLEN, inf);
+		ins->input.flags|=F_FREE;
+		if(ins->input.len==0){
+			ins->flush=1;
+		}
+		ins->output_mode=BSDCONV_NULL;
+		bsdconv(ins);
+	}while(ins->flush==0);
+
+	fclose(inf);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject *
 py_bsdconv_info(PyObject *self, PyObject *args)
 {
@@ -328,6 +449,14 @@ static PyMethodDef Bsdconv_methods[] = {
 		PyDoc_STR("conv_chunk_last(s) -> Perform conversion without initializing")},
 	{"conv_file",	py_bsdconv_conv_file,	METH_VARARGS,
 		PyDoc_STR("conv_file(from_file, to_file) -> Perform conversion with given filename")},
+	{"testconv",	py_bsdconv_testconv,	METH_VARARGS,
+		PyDoc_STR("testconv(s) -> Perform test conversion")},
+	{"testconv_chunk",	py_bsdconv_testconv_chunk,	METH_VARARGS,
+		PyDoc_STR("testconv_chunk(s) -> Perform test conversion without initializing and flushing")},
+	{"testconv_chunk_last",	py_bsdconv_testconv_chunk_last,	METH_VARARGS,
+		PyDoc_STR("testconv_chunk_last(s) -> Perform test conversion without initializing")},
+	{"testconv_file",	py_bsdconv_testconv_file,	METH_VARARGS,
+		PyDoc_STR("testconv_file(from_file) -> Perform test conversion with given filename")},
 	{"info",	py_bsdconv_info,	METH_VARARGS,
 		PyDoc_STR("info(cd) -> Return conversion info")},
 	{NULL,		NULL}		/* sentinel */
