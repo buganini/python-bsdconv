@@ -40,6 +40,33 @@ py_bsdconv_init(PyObject *self, PyObject *args)
 	return Py_True;
 }
 
+
+static PyObject *
+py_bsdconv_ctl(PyObject *self, PyObject *args)
+{
+	struct bsdconv_instance *ins;
+	int ctl;
+	PyObject *a1;
+	int a2;
+	void *ptr;
+
+	if (!PyArg_ParseTuple(args, "iOi", &ctl, &a1, &a2))
+		return NULL;
+
+	if (PyObject_TypeCheck (a1, &PyFile_Type)){
+		ptr=PyFile_AsFile(a1);
+	}else{
+		Py_INCREF(Py_False);
+		return Py_False;
+	}
+
+	ins=((Bsdconv *) self)->ins;
+	bsdconv_ctl(ins, ctl, ptr, a2);
+
+	Py_INCREF(Py_True);
+	return Py_True;
+}
+
 PyDoc_STRVAR(bsdconv_insert_phase_doc,
 "insert_phase(conversion, phase_type, phasen)\n\
 \n\
@@ -432,7 +459,9 @@ py_bsdconv_valid(PyObject *self, PyObject *args)
 
 static PyMethodDef Bsdconv_methods[] = {
 	{"init",	py_bsdconv_init,	METH_VARARGS,
-		PyDoc_STR("init(cd) -> Initialize/Reset bsdconv instance")},
+		PyDoc_STR("init() -> Initialize/Reset bsdconv instance")},
+	{"ctl",	py_bsdconv_ctl,	METH_VARARGS,
+		PyDoc_STR("ctl(arg_ptr_obj, arg_int) -> Initialize/Reset bsdconv instance")},
 	{"insert_phase",	py_bsdconv_insert_phase,	METH_VARARGS,
 		PyDoc_STR("insert_phase(conversion, phase_type, phasen) -> Insert conversion phase into bsdconv instance")},
 	{"insert_codec",	py_bsdconv_insert_codec,	METH_VARARGS,
@@ -643,9 +672,12 @@ PyInit_bsdconv(void)
 #endif
 	Py_INCREF(&Bsdconv_Type);
 	PyModule_AddObject(m, "Bsdconv", (PyObject *)&Bsdconv_Type);
+
 	PyModule_AddIntConstant(m, "FROM", FROM);
 	PyModule_AddIntConstant(m, "INTER", INTER);
 	PyModule_AddIntConstant(m, "TO", TO);
+
+	PyModule_AddIntConstant(m, "CTL_SCORE_ATTACH", BSDCONV_SCORE_ATTACH);
 #if PY_MAJOR_VERSION >= 3
 	return m;
 #endif
