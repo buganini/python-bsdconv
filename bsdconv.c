@@ -53,8 +53,15 @@ py_bsdconv_ctl(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "iOi", &ctl, &a1, &a2))
 		return NULL;
 
+#if PY_MAJOR_VERSION < 3
 	if (PyObject_TypeCheck (a1, &PyFile_Type)){
 		ptr=PyFile_AsFile(a1);
+#else
+	extern PyTypeObject PyIOBase_Type;
+	if(PyObject_IsInstance(a1, (PyObject *)&PyIOBase_Type)){
+		int fd = PyObject_AsFileDescriptor(a1);
+		ptr=fdopen(fd, "a+");
+#endif
 	}else{
 		Py_INCREF(Py_False);
 		return Py_False;
