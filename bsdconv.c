@@ -437,7 +437,7 @@ py_bsdconv_info(PyObject *self, PyObject *args)
 	static PyObject *r;
 	struct bsdconv_instance *ins;
 	ins=((Bsdconv *) self)->ins;
-	r=Py_BuildValue("{sisisi}","ierr",ins->ierr,"oerr",ins->oerr,"score",ins->score);
+	r=Py_BuildValue("{s:i,s:i,s:i,s:i,s:i,s:i}","ierr",ins->ierr,"oerr",ins->oerr,"score",ins->score,"full",ins->full,"half",ins->half,"ambi",ins->ambi);
 	return r;
 }
 
