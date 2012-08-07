@@ -154,7 +154,7 @@ PyDoc_STRVAR(bsdconv_dealloc_doc,
 \n\
 Dealloc bsdconv instance.");
 
-static PyObject *
+static void
 py_bsdconv_dealloc(PyObject *self)
 {
 	struct bsdconv_instance *ins;
@@ -318,7 +318,6 @@ Perform test conversion.");
 static PyObject *
 py_bsdconv_testconv(PyObject *self, PyObject *args)
 {
-	static PyObject *r;
 	struct bsdconv_instance *ins;
 	char *s;
 	int l;
@@ -346,7 +345,6 @@ Perform test conversion without initialization and flushing");
 static PyObject *
 py_bsdconv_testconv_chunk(PyObject *self, PyObject *args)
 {
-	static PyObject *r;
 	struct bsdconv_instance *ins;
 	char *s;
 	int l;
@@ -372,7 +370,6 @@ Perform test conversion without initialization");
 static PyObject *
 py_bsdconv_testconv_chunk_last(PyObject *self, PyObject *args)
 {
-	static PyObject *r;
 	struct bsdconv_instance *ins;
 	char *s;
 	int l;
@@ -615,7 +612,6 @@ static PyObject *
 py_bsdconv_codec_check(PyObject *self, PyObject *args)
 {
 	PyObject *r;
-	struct bsdconv_instance *ins;
 	char *s;
 	int type;
 	if (!PyArg_ParseTuple(args, "iz", &type, &s))
