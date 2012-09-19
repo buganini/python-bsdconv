@@ -189,7 +189,7 @@ py_bsdconv_conv(PyObject *self, PyObject *args)
 	bsdconv(ins);
 
 	r=Py_BuildValue("s#",ins->output.data, ins->output.len);
-	free(ins->output.data);
+	bsdconv_free(ins->output.data);
 	return r;
 }
 
@@ -216,7 +216,7 @@ py_bsdconv_conv_chunk(PyObject *self, PyObject *args)
 	bsdconv(ins);
 
 	r=Py_BuildValue("s#",ins->output.data, ins->output.len);
-	free(ins->output.data);
+	bsdconv_free(ins->output.data);
 	return r;
 }
 
@@ -244,7 +244,7 @@ py_bsdconv_conv_chunk_last(PyObject *self, PyObject *args)
 	bsdconv(ins);
 
 	r=Py_BuildValue("s#",ins->output.data, ins->output.len);
-	free(ins->output.data);
+	bsdconv_free(ins->output.data);
 	return r;
 }
 
@@ -288,7 +288,7 @@ py_bsdconv_conv_file(PyObject *self, PyObject *args)
 
 	bsdconv_init(ins);
 	do{
-		in=malloc(IBUFLEN);
+		in=bsdconv_malloc(IBUFLEN);
 		ins->input.data=in;
 		ins->input.len=fread(in, 1, IBUFLEN, inf);
 		ins->input.flags|=F_FREE;
@@ -411,7 +411,7 @@ py_bsdconv_testconv_file(PyObject *self, PyObject *args)
 	}
 	bsdconv_init(ins);
 	do{
-		in=malloc(IBUFLEN);
+		in=bsdconv_malloc(IBUFLEN);
 		ins->input.data=in;
 		ins->input.len=fread(in, 1, IBUFLEN, inf);
 		ins->input.flags|=F_FREE;
@@ -445,7 +445,7 @@ py_bsdconv_error(PyObject *self, PyObject *args)
 	char *s;
 	s=bsdconv_error();
 	r=Py_BuildValue("s",s);
-	free(s);
+	bsdconv_free(s);
 	return r;
 }
 
@@ -529,7 +529,7 @@ py_bsdconv_repr(PyObject *self, char *attrname)
 	char buf[len];
 	sprintf(buf, "Bsdconv(\"%s\") at %p", s, ins);
 	r=Py_BuildValue("s", buf);
-	free(s);
+	bsdconv_free(s);
 	return r;
 }
 
@@ -596,10 +596,10 @@ py_bsdconv_codecs_list(PyObject *self, PyObject *args)
 	p=list;
 	while(*p!=NULL){
 		PyList_Append(ret, Py_BuildValue("s", *p));
-		free(*p);
+		bsdconv_free(*p);
 		p+=1;
 	}
-	free(list);
+	bsdconv_free(list);
 	return ret;
 }
 
