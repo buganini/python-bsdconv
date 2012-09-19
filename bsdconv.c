@@ -681,6 +681,8 @@ PyInit_bsdconv(void)
 	PyModule_AddIntConstant(m, "TO", TO);
 
 	PyModule_AddIntConstant(m, "CTL_SCORE_ATTACH", BSDCONV_SCORE_ATTACH);
+	PyModule_AddIntConstant(m, "CTL_SET_WIDE_AMBI", BSDCONV_SET_WIDE_AMBI);
+	PyModule_AddIntConstant(m, "CTL_SET_TRIM_WIDTH", BSDCONV_SET_TRIM_WIDTH);
 #if PY_MAJOR_VERSION >= 3
 	return m;
 #endif
