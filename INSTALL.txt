@@ -1,0 +1,7 @@
+Windows:
+	Install Python & MinGW
+	PATH: C:\MinGW\bin;C:\MinGW\msys\1.0\bin;C:\bsdconv
+	Pathes in setup.py
+	s/ -mno-cygwin//g C:\Python27\Lib\distutils\cygwinccompiler.py
+	python setup.py build -c mingw32
+	python setup.py bdist_wininst
