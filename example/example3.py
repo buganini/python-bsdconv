@@ -1,13 +1,14 @@
 #!/usr/bin/env python
+import os
 import sys
-import tempfile
 import bsdconv
 
-tmp=tempfile.TemporaryFile()
+a=bsdconv.mktemp("score.XXXXXX")
+os.unlink(a[1])
 clist=open("characters_list.txt","w+")
 
 p=bsdconv.Bsdconv("utf-8:score_train:null")
-p.ctl(bsdconv.CTL_ATTACH_SCORE, tmp, 0)
+p.ctl(bsdconv.CTL_ATTACH_SCORE, a[0], 0)
 p.ctl(bsdconv.CTL_ATTACH_OUTPUT_FILE, clist, 0)
 
 if not p:

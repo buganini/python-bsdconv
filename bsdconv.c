@@ -24,6 +24,65 @@ typedef struct {
 	struct bsdconv_instance *ins;
 } Bsdconv;
 
+typedef struct {
+
+	PyObject_HEAD
+	FILE *fp;
+} Bsdconv_file;
+
+static void
+py_bsdconv_file_dealloc(PyObject *self)
+{
+	FILE *fp;
+	fp=((Bsdconv_file *) self)->fp;
+	if(fp!=NULL)
+		fclose(fp);
+	PyObject_DEL(self);
+}
+
+static PyTypeObject Bsdconv_File_Type = {
+#if PY_MAJOR_VERSION < 3
+	PyObject_HEAD_INIT(NULL)
+#else
+	PyVarObject_HEAD_INIT(NULL, 0)
+#endif
+	.tp_name="Bsdconv_file",
+	.tp_basicsize=sizeof(Bsdconv_file),
+	.tp_dealloc = (destructor)py_bsdconv_file_dealloc,
+};
+
+static PyObject *
+py_bsdconv_fopen(PyObject *self, PyObject *args)
+{
+	char *filename, *mode;
+	if (!PyArg_ParseTuple(args, "ss", &filename, &mode))
+		return NULL;
+	Bsdconv_file *object = NULL;
+	object = PyObject_NEW(Bsdconv_file, &Bsdconv_File_Type);
+	if (object != NULL)
+		object->fp=fopen(filename, mode);
+	return (PyObject *)object;
+}
+
+static PyObject *
+py_bsdconv_mktemp(PyObject *self, PyObject *args)
+{
+	PyObject *ret=PyList_New(0);
+	char *template;
+	if (!PyArg_ParseTuple(args, "s", &template))
+		return NULL;
+	char *t=strdup(template);
+	int fd=mkstemp(t);
+	FILE *fp=fdopen(fd, "wb+");
+	Bsdconv_file *object = NULL;
+	object = PyObject_NEW(Bsdconv_file, &Bsdconv_File_Type);
+	object->fp=fp;
+	PyList_Append(ret, ret);
+	PyList_Append(ret, Py_BuildValue("s", t));
+	free(t);
+	return ret;
+}
+
 PyDoc_STRVAR(bsdconv_init_doc,
 "init(cd)\n\
 \n\
@@ -627,6 +686,10 @@ py_bsdconv_codec_check(PyObject *self, PyObject *args)
 static PyMethodDef module_methods[] = {
 	{"error",	py_bsdconv_error,	METH_VARARGS,
 		PyDoc_STR("error() -> Return error message")},
+	{"mktemp",	py_bsdconv_mktemp,	METH_VARARGS,
+		PyDoc_STR("mktemp() -> Make temporary file")},
+	{"fopen",	py_bsdconv_fopen,	METH_VARARGS,
+		PyDoc_STR("fopen() -> Open file")},
 	{"codecs_list",	py_bsdconv_codecs_list,	METH_VARARGS,
 		PyDoc_STR("codecs_list() -> list codecs")},
 	{"codec_check",	py_bsdconv_codec_check,	METH_VARARGS,
