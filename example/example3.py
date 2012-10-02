@@ -12,7 +12,7 @@ p.ctl(bsdconv.CTL_ATTACH_SCORE, a[0], 0)
 p.ctl(bsdconv.CTL_ATTACH_OUTPUT_FILE, clist, 0)
 
 if not p:
-	print bsdconv.error()
+	print(bsdconv.error())
 	del p
 	sys.exit()
 
