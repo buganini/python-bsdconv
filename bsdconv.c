@@ -62,7 +62,6 @@ py_bsdconv_fopen(PyObject *self, PyObject *args)
 	if (object == NULL)
 		return NULL;
 	object->fp=fopen(filename, mode);
-printf("fopen: %p\n", object->fp);
 	return (PyObject *)object;
 }
 
@@ -78,7 +77,6 @@ py_bsdconv_mktemp(PyObject *self, PyObject *args)
 	Bsdconv_file *object = NULL;
 	object = PyObject_NEW(Bsdconv_file, &Bsdconv_File_Type);
 	object->fp=fp;
-printf("mktemp: %p\n", object->fp);
 	PyObject *ret=Py_BuildValue("[O,s]", object, t);
 	free(t);
 	return ret;
@@ -131,7 +129,6 @@ py_bsdconv_ctl(PyObject *self, PyObject *args)
 #endif
 	}
 
-printf("ctl: %p\n", ptr);
 	ins=((Bsdconv *) self)->ins;
 	bsdconv_ctl(ins, ctl, ptr, a2);
 
