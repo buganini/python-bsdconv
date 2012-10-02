@@ -5,7 +5,7 @@ import bsdconv
 
 a=bsdconv.mktemp("score.XXXXXX")
 os.unlink(a[1])
-clist=open("characters_list.txt","w+")
+clist=bsdconv.fopen("characters_list.txt","w+")
 
 p=bsdconv.Bsdconv("utf-8:score_train:null")
 p.ctl(bsdconv.CTL_ATTACH_SCORE, a[0], 0)
@@ -25,4 +25,3 @@ while s:
 
 p.conv_chunk_last(s)
 f.close()
-clist.close()

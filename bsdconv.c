@@ -59,15 +59,16 @@ py_bsdconv_fopen(PyObject *self, PyObject *args)
 		return NULL;
 	Bsdconv_file *object = NULL;
 	object = PyObject_NEW(Bsdconv_file, &Bsdconv_File_Type);
-	if (object != NULL)
-		object->fp=fopen(filename, mode);
+	if (object == NULL)
+		return NULL;
+	object->fp=fopen(filename, mode);
+printf("fopen: %p\n", object->fp);
 	return (PyObject *)object;
 }
 
 static PyObject *
 py_bsdconv_mktemp(PyObject *self, PyObject *args)
 {
-	PyObject *ret=PyList_New(0);
 	char *template;
 	if (!PyArg_ParseTuple(args, "s", &template))
 		return NULL;
@@ -77,8 +78,8 @@ py_bsdconv_mktemp(PyObject *self, PyObject *args)
 	Bsdconv_file *object = NULL;
 	object = PyObject_NEW(Bsdconv_file, &Bsdconv_File_Type);
 	object->fp=fp;
-	PyList_Append(ret, ret);
-	PyList_Append(ret, Py_BuildValue("s", t));
+printf("mktemp: %p\n", object->fp);
+	PyObject *ret=Py_BuildValue("[O,s]", object, t);
 	free(t);
 	return ret;
 }
@@ -107,7 +108,7 @@ py_bsdconv_ctl(PyObject *self, PyObject *args)
 	int ctl;
 	PyObject *a1;
 	int a2;
-	void *ptr;
+	void *ptr=NULL;
 
 	if (!PyArg_ParseTuple(args, "iOi", &ctl, &a1, &a2))
 		return NULL;
@@ -121,11 +122,16 @@ py_bsdconv_ctl(PyObject *self, PyObject *args)
 		int fd = PyObject_AsFileDescriptor(a1);
 		ptr=fdopen(fd, "a+");
 #endif
-	}else{
-		Py_INCREF(Py_False);
-		return Py_False;
+#if PY_MAJOR_VERSION < 3
+	}else if (PyObject_TypeCheck (a1, &Bsdconv_File_Type)){
+		ptr=((Bsdconv_file *) a1)->fp;
+#else
+	}else if(PyObject_IsInstance(a1, (PyObject *)&Bsdconv_File_Type)){
+		ptr=((Bsdconv_file *) a1)->fp;;
+#endif
 	}
 
+printf("ctl: %p\n", ptr);
 	ins=((Bsdconv *) self)->ins;
 	bsdconv_ctl(ins, ctl, ptr, a2);
 
