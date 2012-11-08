@@ -17,6 +17,12 @@
 #include <Python.h>
 #include <bsdconv.h>
 
+#ifndef WIN32
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
+
 #define IBUFLEN 1024
 
 typedef struct {
@@ -347,6 +353,13 @@ py_bsdconv_conv_file(PyObject *self, PyObject *args)
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
+
+#ifndef WIN32
+	struct stat stat;
+	fstat(fileno(inf), &stat);
+	fchown(fileno(otf), stat.st_uid, stat.st_gid);
+	fchmod(fileno(otf), stat.st_mode);
+#endif
 
 	bsdconv_init(ins);
 	do{
