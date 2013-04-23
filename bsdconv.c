@@ -150,7 +150,7 @@ py_bsdconv_insert_phase(PyObject *self, PyObject *args)
 		return NULL;
 	char *r=bsdconv_insert_phase(conv, s, t, p);
 	ret=Py_BuildValue("s", r);
-	free(r);
+	bsdconv_free(r);
 	return ret;
 }
 
@@ -167,7 +167,7 @@ py_bsdconv_insert_codec(PyObject *self, PyObject *args)
 		return NULL;
 	char *r=bsdconv_insert_codec(conv, s, p, c);
 	ret=Py_BuildValue("s", r);
-	free(r);
+	bsdconv_free(r);
 	return ret;
 }
 
@@ -184,7 +184,7 @@ py_bsdconv_replace_phase(PyObject *self, PyObject *args)
 		return NULL;
 	char *r=bsdconv_replace_phase(conv, s, t, p);
 	ret=Py_BuildValue("s", r);
-	free(r);
+	bsdconv_free(r);
 	return ret;
 }
 
@@ -201,7 +201,7 @@ py_bsdconv_replace_codec(PyObject *self, PyObject *args)
 		return NULL;
 	char *r=bsdconv_replace_codec(conv, s, p, c);
 	ret=Py_BuildValue("s", r);
-	free(r);
+	bsdconv_free(r);
 	return ret;
 }
 
