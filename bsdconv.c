@@ -447,12 +447,23 @@ py_bsdconv_testconv_file(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-py_bsdconv_info(PyObject *self, PyObject *args)
+py_bsdconv_counter(PyObject *self, PyObject *args)
 {
 	static PyObject *r;
+	char *k;
 	struct bsdconv_instance *ins;
 	ins=((Bsdconv *) self)->ins;
-	r=Py_BuildValue("{s:i,s:i,s:d,s:i,s:i,s:i}","ierr",ins->ierr,"oerr",ins->oerr,"score",ins->score,"full",ins->full,"half",ins->half,"ambi",ins->ambi);
+	if (PyArg_ParseTuple(args, "s", &k)){
+		bsdconv_counter_t *v=bsdconv_counter(ins, k);
+		return PyInt_FromSize_t(*v);
+	}else{
+		r=PyDict_New();
+		struct bsdconv_counter_entry *p=ins->counter;
+		while(p){
+			PyDict_SetItem(r, PyString_FromString(p->key), PyInt_FromSize_t(p->val));
+			p=p->next;
+		}
+	}
 	return r;
 }
 
@@ -472,7 +483,7 @@ py_bsdconv_valid(PyObject *self, PyObject *args)
 {
 	struct bsdconv_instance *ins;
 	ins=((Bsdconv *) self)->ins;
-	
+
 	if(ins!=NULL)
 		return 1;
 	else
@@ -500,8 +511,8 @@ static PyMethodDef Bsdconv_methods[] = {
 		PyDoc_STR("testconv_chunk_last(s) -> Perform test conversion without initializing")},
 	{"testconv_file",	py_bsdconv_testconv_file,	METH_VARARGS,
 		PyDoc_STR("testconv_file(from_file) -> Perform test conversion with given filename")},
-	{"info",	py_bsdconv_info,	METH_VARARGS,
-		PyDoc_STR("info(cd) -> Return conversion info")},
+	{"counter",	py_bsdconv_counter,	METH_VARARGS,
+		PyDoc_STR("counter([name]) -> Return conversion info")},
 	{NULL,		NULL}		/* sentinel */
 };
 

@@ -10,5 +10,5 @@ if not p:
 s=sys.stdin.read()
 print(p.conv(s))
 print('====================================')
-print(p.info())
+print(p.counter())
 del p

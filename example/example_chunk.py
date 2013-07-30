@@ -16,5 +16,5 @@ while s:
 
 print p.conv_chunk_last(s)
 print '===================================='
-print p.info()
+print p.counter()
 del p
