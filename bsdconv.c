@@ -472,6 +472,18 @@ py_bsdconv_counter(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+py_bsdconv_counter_reset(PyObject *self, PyObject *args)
+{
+	struct bsdconv_instance *ins;
+	ins=((Bsdconv *) self)->ins;
+
+	bsdconv_counter_reset(ins);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
 py_bsdconv_error(PyObject *self, PyObject *args)
 {
 	static PyObject *r;
@@ -517,6 +529,8 @@ static PyMethodDef Bsdconv_methods[] = {
 		PyDoc_STR("testconv_file(from_file) -> Perform test conversion with given filename")},
 	{"counter",	py_bsdconv_counter,	METH_VARARGS,
 		PyDoc_STR("counter([name]) -> Return conversion info")},
+	{"counter_reset",	py_bsdconv_counter_reset,	METH_VARARGS,
+		PyDoc_STR("counter_reset() -> Reset all counters")},
 	{NULL,		NULL}		/* sentinel */
 };
 
