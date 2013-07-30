@@ -453,9 +453,9 @@ py_bsdconv_counter(PyObject *self, PyObject *args)
 	char *k;
 	struct bsdconv_instance *ins;
 	ins=((Bsdconv *) self)->ins;
-	if (PyArg_ParseTuple(args, "s", &k)){
+	if (PyArg_ParseTuple(args, "|s", &k)){
 		bsdconv_counter_t *v=bsdconv_counter(ins, k);
-		return PyInt_FromSize_t(*v);
+		r=PyInt_FromSize_t(*v);
 	}else{
 		r=PyDict_New();
 		struct bsdconv_counter_entry *p=ins->counter;
