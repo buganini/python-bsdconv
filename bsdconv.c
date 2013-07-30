@@ -450,10 +450,14 @@ static PyObject *
 py_bsdconv_counter(PyObject *self, PyObject *args)
 {
 	static PyObject *r;
-	char *k;
+	char *k=NULL;
 	struct bsdconv_instance *ins;
 	ins=((Bsdconv *) self)->ins;
-	if (PyArg_ParseTuple(args, "|s", &k)){
+
+	if (!PyArg_ParseTuple(args, "|s", &k))
+		return NULL;
+
+	if (k!=NULL){
 		bsdconv_counter_t *v=bsdconv_counter(ins, k);
 		r=PyInt_FromSize_t(*v);
 	}else{
