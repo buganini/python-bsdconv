@@ -474,10 +474,14 @@ py_bsdconv_counter(PyObject *self, PyObject *args)
 static PyObject *
 py_bsdconv_counter_reset(PyObject *self, PyObject *args)
 {
+	char *k=NULL;
 	struct bsdconv_instance *ins;
 	ins=((Bsdconv *) self)->ins;
 
-	bsdconv_counter_reset(ins);
+	if (!PyArg_ParseTuple(args, "|s", &k))
+		return NULL;
+
+	bsdconv_counter_reset(ins, k);
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -530,7 +534,7 @@ static PyMethodDef Bsdconv_methods[] = {
 	{"counter",	py_bsdconv_counter,	METH_VARARGS,
 		PyDoc_STR("counter([name]) -> Return conversion info")},
 	{"counter_reset",	py_bsdconv_counter_reset,	METH_VARARGS,
-		PyDoc_STR("counter_reset() -> Reset all counters")},
+		PyDoc_STR("counter_reset([name]) -> Reset counter, if no name supplied, all counters will be reset")},
 	{NULL,		NULL}		/* sentinel */
 };
 
