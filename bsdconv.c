@@ -459,12 +459,12 @@ py_bsdconv_counter(PyObject *self, PyObject *args)
 
 	if (k!=NULL){
 		bsdconv_counter_t *v=bsdconv_counter(ins, k);
-		r=PyInt_FromSize_t(*v);
+		r=PyLong_FromSize_t(*v);
 	}else{
 		r=PyDict_New();
 		struct bsdconv_counter_entry *p=ins->counter;
 		while(p){
-			PyDict_SetItem(r, PyString_FromString(p->key), PyInt_FromSize_t(p->val));
+			PyDict_SetItem(r, PyUnicode_FromString(p->key), PyLong_FromSize_t(p->val));
 			p=p->next;
 		}
 	}
