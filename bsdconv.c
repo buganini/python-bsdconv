@@ -231,6 +231,7 @@ py_bsdconv_conv(PyObject *self, PyObject *args)
 	ins->input.data=s;
 	ins->input.len=l;
 	ins->input.flags=0;
+	ins->input.next=NULL;
 	ins->flush=1;
 	bsdconv(ins);
 
@@ -254,6 +255,7 @@ py_bsdconv_conv_chunk(PyObject *self, PyObject *args)
 	ins->input.data=s;
 	ins->input.len=l;
 	ins->input.flags=0;
+	ins->input.next=NULL;
 	bsdconv(ins);
 
 	r=Py_BuildValue("s#",ins->output.data, ins->output.len);
@@ -276,6 +278,7 @@ py_bsdconv_conv_chunk_last(PyObject *self, PyObject *args)
 	ins->input.data=s;
 	ins->input.len=l;
 	ins->input.flags=0;
+	ins->input.next=NULL;
 	ins->flush=1;
 	bsdconv(ins);
 
@@ -330,6 +333,7 @@ py_bsdconv_conv_file(PyObject *self, PyObject *args)
 		ins->input.data=in;
 		ins->input.len=fread(in, 1, IBUFLEN, inf);
 		ins->input.flags|=F_FREE;
+		ins->input.next=NULL;
 		if(ins->input.len==0){
 			ins->flush=1;
 		}
@@ -363,6 +367,7 @@ py_bsdconv_testconv(PyObject *self, PyObject *args)
 	ins->input.data=s;
 	ins->input.len=l;
 	ins->input.flags=0;
+	ins->input.next=NULL;
 	ins->flush=1;
 	bsdconv(ins);
 
@@ -384,6 +389,7 @@ py_bsdconv_testconv_chunk(PyObject *self, PyObject *args)
 	ins->input.data=s;
 	ins->input.len=l;
 	ins->input.flags=0;
+	ins->input.next=NULL;
 	bsdconv(ins);
 
 	Py_INCREF(Py_None);
@@ -404,6 +410,7 @@ py_bsdconv_testconv_chunk_last(PyObject *self, PyObject *args)
 	ins->input.data=s;
 	ins->input.len=l;
 	ins->input.flags=0;
+	ins->input.next=NULL;
 	ins->flush=1;
 	bsdconv(ins);
 
@@ -433,6 +440,7 @@ py_bsdconv_testconv_file(PyObject *self, PyObject *args)
 		ins->input.data=in;
 		ins->input.len=fread(in, 1, IBUFLEN, inf);
 		ins->input.flags|=F_FREE;
+		ins->input.next=NULL;
 		if(ins->input.len==0){
 			ins->flush=1;
 		}
