@@ -7,7 +7,7 @@ a=bsdconv.mktemp("score.XXXXXX")
 os.unlink(a[1])
 clist=bsdconv.fopen("characters_list.txt","w+")
 
-p=bsdconv.Bsdconv("utf-8:score_train:null")
+p=bsdconv.Bsdconv("utf-8:score-train:null")
 if not p:
 	print(bsdconv.error())
 	del p
