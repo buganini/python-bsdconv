@@ -31,7 +31,6 @@ typedef struct {
 } Bsdconv;
 
 typedef struct {
-
 	PyObject_HEAD
 	FILE *fp;
 } Bsdconv_file;
