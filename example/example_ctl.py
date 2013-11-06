@@ -8,13 +8,13 @@ os.unlink(a[1])
 clist=bsdconv.fopen("characters_list.txt","w+")
 
 p=bsdconv.Bsdconv("utf-8:score_train:null")
-p.ctl(bsdconv.CTL_ATTACH_SCORE, a[0], 0)
-p.ctl(bsdconv.CTL_ATTACH_OUTPUT_FILE, clist, 0)
-
 if not p:
 	print(bsdconv.error())
 	del p
 	sys.exit()
+
+p.ctl(bsdconv.CTL_ATTACH_SCORE, a[0], 0)
+p.ctl(bsdconv.CTL_ATTACH_OUTPUT_FILE, clist, 0)
 
 p.init()
 f=open(sys.argv[1])
