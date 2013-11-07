@@ -2,9 +2,6 @@
 import sys
 import bsdconv
 
-p=bsdconv.Bsdconv('utf-8:utf-8')
-print(p.conv('test'))
-
 print(bsdconv.codec_check(bsdconv.FROM,"_utf-8"))
 print(bsdconv.codec_check(bsdconv.INTER,"_utf-8"))
 print('From:')
