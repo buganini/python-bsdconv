@@ -44,11 +44,11 @@ Python binding API
 
 	.. py:method:: init()
 
-		Initialize/Reset bsdconv instance
+		Initialize/Reset bsdconv converter
 
 	.. py:method:: ctl(arg_ptr_obj, arg_int)
 
-		Initialize/Reset bsdconv instance
+		Manipulate the underlying codec parameters
 
 	.. py:method:: conv(s)
 
@@ -84,7 +84,7 @@ Python binding API
 
 	.. py:method:: counter([name])
 
-		Return conversion info
+		Return counter or counters if not specified
 
 	.. py:method:: counter_reset([name])
 

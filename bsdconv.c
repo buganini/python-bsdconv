@@ -521,7 +521,7 @@ static PyMethodDef Bsdconv_methods[] = {
 	{"init",	py_bsdconv_init,	METH_VARARGS,
 		PyDoc_STR("init() -> Initialize/Reset bsdconv instance")},
 	{"ctl",	py_bsdconv_ctl,	METH_VARARGS,
-		PyDoc_STR("ctl(arg_ptr_obj, arg_int) -> Initialize/Reset bsdconv instance")},
+		PyDoc_STR("ctl(arg_ptr_obj, arg_int) -> Manipulate the underlying codec parameters")},
 	{"conv",	py_bsdconv_conv,	METH_VARARGS,
 		PyDoc_STR("conv(s) -> Perform conversion")},
 	{"conv_chunk",	py_bsdconv_conv_chunk,	METH_VARARGS,
@@ -539,7 +539,7 @@ static PyMethodDef Bsdconv_methods[] = {
 	{"testconv_file",	py_bsdconv_testconv_file,	METH_VARARGS,
 		PyDoc_STR("testconv_file(from_file) -> Perform test conversion with given filename")},
 	{"counter",	py_bsdconv_counter,	METH_VARARGS,
-		PyDoc_STR("counter([name]) -> Return conversion info")},
+		PyDoc_STR("counter([name]) -> Return counter or counters if not specified")},
 	{"counter_reset",	py_bsdconv_counter_reset,	METH_VARARGS,
 		PyDoc_STR("counter_reset([name]) -> Reset counter, if no name supplied, all counters will be reset")},
 	{NULL,		NULL}		/* sentinel */
