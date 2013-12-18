@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 import os
 import sys
-import bsdconv
+from bsdconv import Bsdconv
 
-a=bsdconv.mktemp("score.XXXXXX")
+a=Bsdconv.mktemp("score.XXXXXX")
 os.unlink(a[1])
-clist=bsdconv.fopen("characters_list.txt","w+")
+clist=Bsdconv.fopen("characters_list.txt","w+")
 
-p=bsdconv.Bsdconv("utf-8:score-train:null")
+p=Bsdconv("utf-8:score-train:null")
 if not p:
-	print(bsdconv.error())
+	print(Bsdconv.error())
 	del p
 	sys.exit()
 
-p.ctl(bsdconv.CTL_ATTACH_SCORE, a[0], 0)
-p.ctl(bsdconv.CTL_ATTACH_OUTPUT_FILE, clist, 0)
+p.ctl(Bsdconv.CTL_ATTACH_SCORE, a[0], 0)
+p.ctl(Bsdconv.CTL_ATTACH_OUTPUT_FILE, clist, 0)
 
 p.init()
 f=open(sys.argv[1])

@@ -517,6 +517,64 @@ py_bsdconv_valid(PyObject *self, PyObject *args)
 		return 0;
 }
 
+static PyObject *
+py_bsdconv_repr(PyObject *self, char *attrname)
+{
+	static PyObject *r;
+	char *s;
+	int len=32;
+	struct bsdconv_instance *ins;
+	ins=((Bsdconv *) self)->ins;
+	if(ins==NULL){
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	s=bsdconv_pack(ins);
+	len+=strlen(s);
+	char buf[len];
+	sprintf(buf, "Bsdconv(\"%s\") at %p", s, ins);
+	r=Py_BuildValue("s", buf);
+	bsdconv_free(s);
+	return r;
+}
+
+static PyObject *
+py_bsdconv_codecs_list(PyObject *self, PyObject *args)
+{
+	PyObject *ret=PyList_New(0);
+	char **list;
+	char **p;
+	int phase_type;
+	if (!PyArg_ParseTuple(args, "i", &phase_type))
+		return NULL;
+	list=bsdconv_codecs_list(phase_type);
+	p=list;
+	while(*p!=NULL){
+		PyList_Append(ret, Py_BuildValue("s", *p));
+		bsdconv_free(*p);
+		p+=1;
+	}
+	bsdconv_free(list);
+	return ret;
+}
+
+static PyObject *
+py_bsdconv_codec_check(PyObject *self, PyObject *args)
+{
+	PyObject *r;
+	char *s;
+	int type;
+	if (!PyArg_ParseTuple(args, "iz", &type, &s))
+		return NULL;
+	if(bsdconv_codec_check(type, s))
+		r=Py_True;
+	else
+		r=Py_False;
+	Py_INCREF(r);
+	return r;
+}
+
 static PyMethodDef Bsdconv_methods[] = {
 	{"init",	py_bsdconv_init,	METH_VARARGS,
 		PyDoc_STR("init() -> Initialize/Reset bsdconv instance")},
@@ -542,15 +600,25 @@ static PyMethodDef Bsdconv_methods[] = {
 		PyDoc_STR("counter([name]) -> Return counter or counters if not specified")},
 	{"counter_reset",	py_bsdconv_counter_reset,	METH_VARARGS,
 		PyDoc_STR("counter_reset([name]) -> Reset counter, if no name supplied, all counters will be reset")},
+	{"insert_phase",	py_bsdconv_insert_phase,	METH_VARARGS | METH_STATIC,
+		PyDoc_STR("insert_phase(conversion, codecs, phase_type, phasen) -> Insert conversion phase into bsdconv conversion string")},
+	{"insert_codec",	py_bsdconv_insert_codec,	METH_VARARGS | METH_STATIC,
+		PyDoc_STR("insert_codec(conversion, codec, phasen, codecn) -> Insert conversion codec into bsdconv conversion string")},
+	{"replace_phase",	py_bsdconv_replace_phase,	METH_VARARGS | METH_STATIC,
+		PyDoc_STR("replace_phase(conversion, codecs, phase_type, phasen) -> Replace conversion phase in the bsdconv conversion string")},
+	{"replace_codec",	py_bsdconv_replace_codec,	METH_VARARGS | METH_STATIC,
+		PyDoc_STR("replace_codec(conversion, codec, phasen, codecn) -> Replace conversion codec in the bsdconv conversion string")},
+	{"error",	py_bsdconv_error,	METH_VARARGS | METH_STATIC,
+		PyDoc_STR("error() -> Return error message")},
+	{"mktemp",	py_bsdconv_mktemp,	METH_VARARGS | METH_STATIC,
+		PyDoc_STR("mktemp() -> Make temporary file")},
+	{"fopen",	py_bsdconv_fopen,	METH_VARARGS | METH_STATIC,
+		PyDoc_STR("fopen() -> Open file")},
+	{"codecs_list",	py_bsdconv_codecs_list,	METH_VARARGS | METH_STATIC,
+		PyDoc_STR("codecs_list() -> list codecs")},
+	{"codec_check",	py_bsdconv_codec_check,	METH_VARARGS | METH_STATIC,
+		PyDoc_STR("codec_check(type, codec) -> check if a codec is available")},
 	{NULL,		NULL}		/* sentinel */
-};
-
-static PyNumberMethods Bsdconv_number_methods = {
-#if PY_MAJOR_VERSION < 3
-	.nb_nonzero = (inquiry) py_bsdconv_valid
-#else
-	.nb_bool = (inquiry) py_bsdconv_valid
-#endif
 };
 
 #if PY_MAJOR_VERSION < 3
@@ -561,27 +629,13 @@ py_bsdconv_getattr(PyObject *self, char *attrname)
 }
 #endif
 
-static PyObject *
-py_bsdconv_repr(PyObject *self, char *attrname)
-{
-	static PyObject *r;
-	char *s;
-	int len=32;
-	struct bsdconv_instance *ins;
-	ins=((Bsdconv *) self)->ins;
-	if(ins==NULL){
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
-
-	s=bsdconv_pack(ins);
-	len+=strlen(s);
-	char buf[len];
-	sprintf(buf, "Bsdconv(\"%s\") at %p", s, ins);
-	r=Py_BuildValue("s", buf);
-	bsdconv_free(s);
-	return r;
-}
+static PyNumberMethods Bsdconv_number_methods = {
+#if PY_MAJOR_VERSION < 3
+	.nb_nonzero = (inquiry) py_bsdconv_valid
+#else
+	.nb_bool = (inquiry) py_bsdconv_valid
+#endif
+};
 
 static PyTypeObject Bsdconv_Type = {
 #if PY_MAJOR_VERSION < 3
@@ -623,61 +677,8 @@ py_bsdconv_new(PyObject *self, PyObject *args)
 	return ret;
 }
 
-static PyObject *
-py_bsdconv_codecs_list(PyObject *self, PyObject *args)
-{
-	PyObject *ret=PyList_New(0);
-	char **list;
-	char **p;
-	int phase_type;
-	if (!PyArg_ParseTuple(args, "i", &phase_type))
-		return NULL;
-	list=bsdconv_codecs_list(phase_type);
-	p=list;
-	while(*p!=NULL){
-		PyList_Append(ret, Py_BuildValue("s", *p));
-		bsdconv_free(*p);
-		p+=1;
-	}
-	bsdconv_free(list);
-	return ret;
-}
-
-static PyObject *
-py_bsdconv_codec_check(PyObject *self, PyObject *args)
-{
-	PyObject *r;
-	char *s;
-	int type;
-	if (!PyArg_ParseTuple(args, "iz", &type, &s))
-		return NULL;
-	if(bsdconv_codec_check(type, s))
-		r=Py_True;
-	else
-		r=Py_False;
-	Py_INCREF(r);
-	return r;
-}
 
 static PyMethodDef module_methods[] = {
-	{"insert_phase",	py_bsdconv_insert_phase,	METH_VARARGS,
-		PyDoc_STR("insert_phase(conversion, codecs, phase_type, phasen) -> Insert conversion phase into bsdconv conversion string")},
-	{"insert_codec",	py_bsdconv_insert_codec,	METH_VARARGS,
-		PyDoc_STR("insert_codec(conversion, codec, phasen, codecn) -> Insert conversion codec into bsdconv conversion string")},
-	{"replace_phase",	py_bsdconv_replace_phase,	METH_VARARGS,
-		PyDoc_STR("replace_phase(conversion, codecs, phase_type, phasen) -> Replace conversion phase in the bsdconv conversion string")},
-	{"replace_codec",	py_bsdconv_replace_codec,	METH_VARARGS,
-		PyDoc_STR("replace_codec(conversion, codec, phasen, codecn) -> Replace conversion codec in the bsdconv conversion string")},
-	{"error",	py_bsdconv_error,	METH_VARARGS,
-		PyDoc_STR("error() -> Return error message")},
-	{"mktemp",	py_bsdconv_mktemp,	METH_VARARGS,
-		PyDoc_STR("mktemp() -> Make temporary file")},
-	{"fopen",	py_bsdconv_fopen,	METH_VARARGS,
-		PyDoc_STR("fopen() -> Open file")},
-	{"codecs_list",	py_bsdconv_codecs_list,	METH_VARARGS,
-		PyDoc_STR("codecs_list() -> list codecs")},
-	{"codec_check",	py_bsdconv_codec_check,	METH_VARARGS,
-		PyDoc_STR("codec_check(type, codec) -> check if a codec is available")},
 	{NULL,		NULL}		/* sentinel */
 };
 #if PY_MAJOR_VERSION >= 3
@@ -705,6 +706,17 @@ PyInit_bsdconv(void)
 {
 	PyObject *m;
 	Bsdconv_Type.tp_new = (newfunc)py_bsdconv_new;
+
+	Bsdconv_Type.tp_dict = PyDict_New();
+	PyDict_SetItemString(Bsdconv_Type.tp_dict, "FROM", PyLong_FromLong(FROM));
+	PyDict_SetItemString(Bsdconv_Type.tp_dict, "INTER", PyLong_FromLong(INTER));
+	PyDict_SetItemString(Bsdconv_Type.tp_dict, "TO", PyLong_FromLong(TO));
+
+	PyDict_SetItemString(Bsdconv_Type.tp_dict, "CTL_ATTACH_SCORE", PyLong_FromLong(BSDCONV_ATTACH_SCORE));
+	PyDict_SetItemString(Bsdconv_Type.tp_dict, "CTL_SET_WIDE_AMBI", PyLong_FromLong(BSDCONV_SET_WIDE_AMBI));
+	PyDict_SetItemString(Bsdconv_Type.tp_dict, "CTL_SET_TRIM_WIDTH", PyLong_FromLong(BSDCONV_SET_TRIM_WIDTH));
+	PyDict_SetItemString(Bsdconv_Type.tp_dict, "CTL_ATTACH_OUTPUT_FILE", PyLong_FromLong(BSDCONV_ATTACH_OUTPUT_FILE));
+
 #if PY_MAJOR_VERSION < 3
 	if (PyType_Ready(&Bsdconv_Type) < 0)
 		return;
@@ -720,17 +732,10 @@ PyInit_bsdconv(void)
 		return NULL;
 	}
 #endif
+
 	Py_INCREF(&Bsdconv_Type);
 	PyModule_AddObject(m, "Bsdconv", (PyObject *)&Bsdconv_Type);
 
-	PyModule_AddIntConstant(m, "FROM", FROM);
-	PyModule_AddIntConstant(m, "INTER", INTER);
-	PyModule_AddIntConstant(m, "TO", TO);
-
-	PyModule_AddIntConstant(m, "CTL_ATTACH_SCORE", BSDCONV_ATTACH_SCORE);
-	PyModule_AddIntConstant(m, "CTL_SET_WIDE_AMBI", BSDCONV_SET_WIDE_AMBI);
-	PyModule_AddIntConstant(m, "CTL_SET_TRIM_WIDTH", BSDCONV_SET_TRIM_WIDTH);
-	PyModule_AddIntConstant(m, "CTL_ATTACH_OUTPUT_FILE", BSDCONV_ATTACH_OUTPUT_FILE);
 #if PY_MAJOR_VERSION >= 3
 	return m;
 #endif

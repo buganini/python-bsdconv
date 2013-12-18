@@ -3,43 +3,6 @@ Python binding API
 
 .. py:module:: bsdconv
 
-.. py:function:: insert_phase(conversion, codecs, phase_type, phasen)
-
-	Insert conversion phase into bsdconv conversion string
-
-.. py:function:: insert_codec(conversion, codec, phasen, codecn)
-
-	Insert conversion codec into bsdconv conversion string
-
-.. py:function:: replace_phase(conversion, codecs, phase_type, phasen)
-
-	Replace conversion phase in the bsdconv conversion string
-
-.. py:function:: replace_codec(conversion, codec, phasen, codecn)
-
-	Replace conversion codec in the bsdconv conversion string
-
-.. py:function:: error()
-
-	Return error message
-
-.. py:function:: mktemp()
-
-	Make temporary file
-
-.. py:function:: fopen()
-
-	Open file
-
-.. py:function:: codecs_list()
-
-	list codecs
-
-.. py:function:: codec_check(type, codec)
-
-	check if a codec is available
-
-
 .. py:class:: Bsdconv
 
 	.. py:method:: init()
@@ -89,3 +52,39 @@ Python binding API
 	.. py:method:: counter_reset([name])
 
 		Reset counter, if no name supplied, all counters will be reset
+
+	.. py:staticmethod:: insert_phase(conversion, codecs, phase_type, phasen)
+
+		Insert conversion phase into bsdconv conversion string
+
+	.. py:staticmethod:: insert_codec(conversion, codec, phasen, codecn)
+
+		Insert conversion codec into bsdconv conversion string
+
+	.. py:staticmethod:: replace_phase(conversion, codecs, phase_type, phasen)
+
+		Replace conversion phase in the bsdconv conversion string
+
+	.. py:staticmethod:: replace_codec(conversion, codec, phasen, codecn)
+
+		Replace conversion codec in the bsdconv conversion string
+
+	.. py:staticmethod:: error()
+
+		Return error message
+
+	.. py:staticmethod:: mktemp()
+
+		Make temporary file
+
+	.. py:staticmethod:: fopen()
+
+		Open file
+
+	.. py:staticmethod:: codecs_list()
+
+		list codecs
+
+	.. py:staticmethod:: codec_check(type, codec)
+
+		check if a codec is available

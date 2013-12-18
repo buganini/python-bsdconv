@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 import sys
-import bsdconv
+from bsdconv import Bsdconv
 
-print(bsdconv.codec_check(bsdconv.FROM,"_utf-8"))
-print(bsdconv.codec_check(bsdconv.INTER,"_utf-8"))
+print(Bsdconv.codec_check(Bsdconv.FROM,"_utf-8"))
+print(Bsdconv.codec_check(Bsdconv.INTER,"_utf-8"))
 print('From:')
-print(bsdconv.codecs_list(bsdconv.FROM))
+print(Bsdconv.codecs_list(Bsdconv.FROM))
 print('Inter:')
-print(bsdconv.codecs_list(bsdconv.INTER))
+print(Bsdconv.codecs_list(Bsdconv.INTER))
 print('To:')
-print(bsdconv.codecs_list(bsdconv.TO))
+print(Bsdconv.codecs_list(Bsdconv.TO))
 

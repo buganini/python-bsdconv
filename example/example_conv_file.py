@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import sys
-import bsdconv
+from bsdconv import Bsdconv
 
-p=bsdconv.Bsdconv(sys.argv[1])
+p=Bsdconv(sys.argv[1])
 if not p:
-	print(bsdconv.error())
+	print(Bsdconv.error())
 	del p
 	sys.exit()
 p.conv_file(sys.argv[2], sys.argv[3])

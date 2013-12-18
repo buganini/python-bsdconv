@@ -1,20 +1,19 @@
 #!/usr/bin/env python
 import sys
-import bsdconv
+from bsdconv import Bsdconv
 
-p=bsdconv.Bsdconv(sys.argv[1])
+p=Bsdconv(sys.argv[1])
 if not p:
-	print bsdconv.error()
+	print(Bsdconv.error())
 	del p
 	sys.exit()
-p.insert_phase('full',bsdconv.INTER,1);
 p.init()
 s=sys.stdin.read(1024)
 while s:
-	print p.conv_chunk(s),
+	print(p.conv_chunk(s),)
 	s=sys.stdin.read(1024)
 
-print p.conv_chunk_last(s)
-print '===================================='
-print p.counter()
+print(p.conv_chunk_last(s))
+print('====================================')
+print(p.counter())
 del p
