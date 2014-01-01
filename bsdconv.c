@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013 Kuan-Chung Chiu <buganini@gmail.com>
+ * Copyright (c) 2009-2014 Kuan-Chung Chiu <buganini@gmail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -712,10 +712,9 @@ PyInit_bsdconv(void)
 	PyDict_SetItemString(Bsdconv_Type.tp_dict, "INTER", PyLong_FromLong(INTER));
 	PyDict_SetItemString(Bsdconv_Type.tp_dict, "TO", PyLong_FromLong(TO));
 
-	PyDict_SetItemString(Bsdconv_Type.tp_dict, "CTL_ATTACH_SCORE", PyLong_FromLong(BSDCONV_ATTACH_SCORE));
-	PyDict_SetItemString(Bsdconv_Type.tp_dict, "CTL_SET_WIDE_AMBI", PyLong_FromLong(BSDCONV_SET_WIDE_AMBI));
-	PyDict_SetItemString(Bsdconv_Type.tp_dict, "CTL_SET_TRIM_WIDTH", PyLong_FromLong(BSDCONV_SET_TRIM_WIDTH));
-	PyDict_SetItemString(Bsdconv_Type.tp_dict, "CTL_ATTACH_OUTPUT_FILE", PyLong_FromLong(BSDCONV_ATTACH_OUTPUT_FILE));
+	PyDict_SetItemString(Bsdconv_Type.tp_dict, "CTL_ATTACH_SCORE", PyLong_FromLong(BSDCONV_CTL_ATTACH_SCORE));
+	PyDict_SetItemString(Bsdconv_Type.tp_dict, "CTL_ATTACH_OUTPUT_FILE", PyLong_FromLong(BSDCONV_CTL_ATTACH_OUTPUT_FILE));
+	PyDict_SetItemString(Bsdconv_Type.tp_dict, "CTL_AMBIGUOUS_PAD", PyLong_FromLong(BSDCONV_CTL_AMBIGUOUS_PAD));
 
 #if PY_MAJOR_VERSION < 3
 	if (PyType_Ready(&Bsdconv_Type) < 0)
