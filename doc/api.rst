@@ -5,6 +5,7 @@ Python binding API
 
 .. py:class:: Bsdconv
 
+	.. py:data:: FILTER
 	.. py:data:: FROM
 	.. py:data:: INTER
 	.. py:data:: TO
@@ -93,10 +94,10 @@ Python binding API
 
 		Open file
 
-	.. py:staticmethod:: codecs_list()
+	.. py:staticmethod:: modules_list(type)
 
-		list codecs
+		Get modules list of specified type
 
-	.. py:staticmethod:: codec_check(type, codec)
+	.. py:staticmethod:: module_check(type, module)
 
-		check if a codec is available
+		Check availability with given type and module name
