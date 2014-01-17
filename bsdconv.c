@@ -708,6 +708,7 @@ PyInit_bsdconv(void)
 	Bsdconv_Type.tp_new = (newfunc)py_bsdconv_new;
 
 	Bsdconv_Type.tp_dict = PyDict_New();
+	PyDict_SetItemString(Bsdconv_Type.tp_dict, "FILTER", PyLong_FromLong(FILTER));
 	PyDict_SetItemString(Bsdconv_Type.tp_dict, "FROM", PyLong_FromLong(FROM));
 	PyDict_SetItemString(Bsdconv_Type.tp_dict, "INTER", PyLong_FromLong(INTER));
 	PyDict_SetItemString(Bsdconv_Type.tp_dict, "TO", PyLong_FromLong(TO));
