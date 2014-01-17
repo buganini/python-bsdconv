@@ -322,7 +322,7 @@ py_bsdconv_conv_file(PyObject *self, PyObject *args)
 #ifndef WIN32
 	struct stat stat;
 	fstat(fileno(inf), &stat);
-	(void) fchown(fileno(otf), stat.st_uid, stat.st_gid);
+	fchown(fileno(otf), stat.st_uid, stat.st_gid);
 	fchmod(fileno(otf), stat.st_mode);
 #endif
 
@@ -540,7 +540,7 @@ py_bsdconv_repr(PyObject *self, char *attrname)
 }
 
 static PyObject *
-py_bsdconv_codecs_list(PyObject *self, PyObject *args)
+py_bsdconv_modules_list(PyObject *self, PyObject *args)
 {
 	PyObject *ret=PyList_New(0);
 	char **list;
@@ -548,7 +548,7 @@ py_bsdconv_codecs_list(PyObject *self, PyObject *args)
 	int phase_type;
 	if (!PyArg_ParseTuple(args, "i", &phase_type))
 		return NULL;
-	list=bsdconv_codecs_list(phase_type);
+	list=bsdconv_modules_list(phase_type);
 	p=list;
 	while(*p!=NULL){
 		PyList_Append(ret, Py_BuildValue("s", *p));
@@ -560,14 +560,14 @@ py_bsdconv_codecs_list(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-py_bsdconv_codec_check(PyObject *self, PyObject *args)
+py_bsdconv_module_check(PyObject *self, PyObject *args)
 {
 	PyObject *r;
 	char *s;
 	int type;
 	if (!PyArg_ParseTuple(args, "iz", &type, &s))
 		return NULL;
-	if(bsdconv_codec_check(type, s))
+	if(bsdconv_module_check(type, s))
 		r=Py_True;
 	else
 		r=Py_False;
@@ -614,10 +614,10 @@ static PyMethodDef Bsdconv_methods[] = {
 		PyDoc_STR("mktemp() -> Make temporary file")},
 	{"fopen",	py_bsdconv_fopen,	METH_VARARGS | METH_STATIC,
 		PyDoc_STR("fopen() -> Open file")},
-	{"codecs_list",	py_bsdconv_codecs_list,	METH_VARARGS | METH_STATIC,
-		PyDoc_STR("codecs_list() -> list codecs")},
-	{"codec_check",	py_bsdconv_codec_check,	METH_VARARGS | METH_STATIC,
-		PyDoc_STR("codec_check(type, codec) -> check if a codec is available")},
+	{"modules_list",	py_bsdconv_modules_list,	METH_VARARGS | METH_STATIC,
+		PyDoc_STR("modules_list() -> list codecs")},
+	{"module_check",	py_bsdconv_module_check,	METH_VARARGS | METH_STATIC,
+		PyDoc_STR("module_check(type, codec) -> check if a codec is available")},
 	{NULL,		NULL}		/* sentinel */
 };
 

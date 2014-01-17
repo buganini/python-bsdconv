@@ -3,7 +3,7 @@
 from distutils.core import setup,Extension
 
 setup(name='bsdconv',
-      version='11.2.0',
+      version='12.0.0',
       description='bsdconv library',
       author='Buganini',
       author_email='buganini@gmail.com',

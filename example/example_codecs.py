@@ -2,12 +2,14 @@
 import sys
 from bsdconv import Bsdconv
 
-print(Bsdconv.codec_check(Bsdconv.FROM,"_utf-8"))
-print(Bsdconv.codec_check(Bsdconv.INTER,"_utf-8"))
+print(Bsdconv.module_check(Bsdconv.FROM,"_utf-8"))
+print(Bsdconv.module_check(Bsdconv.INTER,"_utf-8"))
+print('Filter:')
+print(Bsdconv.modules_list(Bsdconv.FILTER))
 print('From:')
-print(Bsdconv.codecs_list(Bsdconv.FROM))
+print(Bsdconv.modules_list(Bsdconv.FROM))
 print('Inter:')
-print(Bsdconv.codecs_list(Bsdconv.INTER))
+print(Bsdconv.modules_list(Bsdconv.INTER))
 print('To:')
-print(Bsdconv.codecs_list(Bsdconv.TO))
+print(Bsdconv.modules_list(Bsdconv.TO))
 
