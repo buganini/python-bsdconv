@@ -616,8 +616,12 @@ static PyMethodDef Bsdconv_methods[] = {
 		PyDoc_STR("fopen() -> Open file")},
 	{"modules_list",	py_bsdconv_modules_list,	METH_VARARGS | METH_STATIC,
 		PyDoc_STR("modules_list() -> list codecs")},
+	{"codecs_list",	py_bsdconv_modules_list,	METH_VARARGS | METH_STATIC,
+		PyDoc_STR("codecs_list() -> list codecs\nDEPRECATED: Use modules_list() instead")},
 	{"module_check",	py_bsdconv_module_check,	METH_VARARGS | METH_STATIC,
 		PyDoc_STR("module_check(type, codec) -> check if a codec is available")},
+	{"codec_check",	py_bsdconv_module_check,	METH_VARARGS | METH_STATIC,
+		PyDoc_STR("codec_check(type, codec) -> check if a codec is available\nDEPRECATED: Use module_check() instead")},
 	{NULL,		NULL}		/* sentinel */
 };
 
