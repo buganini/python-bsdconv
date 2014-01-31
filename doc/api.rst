@@ -94,9 +94,17 @@ Python binding API
 
 		Open file
 
+	.. py:staticmethod:: codecs_list(type)
+
+		DEPRECATED: Use :py:meth:`modules_list` instead
+
 	.. py:staticmethod:: modules_list(type)
 
 		Get modules list of specified type
+
+	.. py:staticmethod:: codec_check(type)
+
+		DEPRECATED: Use :py:meth:`module_check` instead
 
 	.. py:staticmethod:: module_check(type, module)
 
