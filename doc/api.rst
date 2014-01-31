@@ -102,7 +102,7 @@ Python binding API
 
 		Get modules list of specified type
 
-	.. py:staticmethod:: codec_check(type)
+	.. py:staticmethod:: codec_check(type, module)
 
 		DEPRECATED: Use :py:meth:`module_check` instead
 
