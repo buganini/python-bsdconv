@@ -34,6 +34,13 @@
 
 #define IBUFLEN 1024
 
+#if PY_MAJOR_VERSION < 3
+#define BUILD_BYTES "s#"
+#else
+#define BUILD_BYTES "y#"
+#endif
+
+
 typedef struct {
 	PyObject_HEAD
 	struct bsdconv_instance *ins;
@@ -243,7 +250,7 @@ py_bsdconv_conv(PyObject *self, PyObject *args)
 	ins->flush=1;
 	bsdconv(ins);
 
-	r=Py_BuildValue("s#",ins->output.data, ins->output.len);
+	r=Py_BuildValue(BUILD_BYTES, ins->output.data, ins->output.len);
 	bsdconv_free(ins->output.data);
 	return r;
 }
@@ -266,7 +273,7 @@ py_bsdconv_conv_chunk(PyObject *self, PyObject *args)
 	ins->input.next=NULL;
 	bsdconv(ins);
 
-	r=Py_BuildValue("s#",ins->output.data, ins->output.len);
+	r=Py_BuildValue(BUILD_BYTES, ins->output.data, ins->output.len);
 	bsdconv_free(ins->output.data);
 	return r;
 }
@@ -290,7 +297,7 @@ py_bsdconv_conv_chunk_last(PyObject *self, PyObject *args)
 	ins->flush=1;
 	bsdconv(ins);
 
-	r=Py_BuildValue("s#",ins->output.data, ins->output.len);
+	r=Py_BuildValue(BUILD_BYTES, ins->output.data, ins->output.len);
 	bsdconv_free(ins->output.data);
 	return r;
 }
