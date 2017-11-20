@@ -38,6 +38,7 @@
 #define BUILD_BYTES "s#"
 #else
 #define BUILD_BYTES "y#"
+#define BUILD_UTF8 "s#"
 #endif
 
 
@@ -255,6 +256,33 @@ py_bsdconv_conv(PyObject *self, PyObject *args)
 	return r;
 }
 
+#if PY_MAJOR_VERSION >= 3
+static PyObject *
+py_bsdconv_uconv(PyObject *self, PyObject *args)
+{
+	static PyObject *r;
+	struct bsdconv_instance *ins;
+	char *s;
+	int l;
+	if (!PyArg_ParseTuple(args, "z#", &s,&l))
+		return NULL;
+	ins=((Bsdconv *) self)->ins;
+
+	bsdconv_init(ins);
+	ins->output_mode=BSDCONV_AUTOMALLOC;
+	ins->input.data=s;
+	ins->input.len=l;
+	ins->input.flags=0;
+	ins->input.next=NULL;
+	ins->flush=1;
+	bsdconv(ins);
+
+	r=Py_BuildValue(BUILD_UTF8, ins->output.data, ins->output.len);
+	bsdconv_free(ins->output.data);
+	return r;
+}
+#endif
+
 static PyObject *
 py_bsdconv_conv_chunk(PyObject *self, PyObject *args)
 {
@@ -277,6 +305,31 @@ py_bsdconv_conv_chunk(PyObject *self, PyObject *args)
 	bsdconv_free(ins->output.data);
 	return r;
 }
+
+#if PY_MAJOR_VERSION >= 3
+static PyObject *
+py_bsdconv_uconv_chunk(PyObject *self, PyObject *args)
+{
+	static PyObject *r;
+	struct bsdconv_instance *ins;
+	char *s;
+	int l;
+	if (!PyArg_ParseTuple(args, "z#", &s,&l))
+		return NULL;
+	ins=((Bsdconv *) self)->ins;
+
+	ins->output_mode=BSDCONV_AUTOMALLOC;
+	ins->input.data=s;
+	ins->input.len=l;
+	ins->input.flags=0;
+	ins->input.next=NULL;
+	bsdconv(ins);
+
+	r=Py_BuildValue(BUILD_UTF8, ins->output.data, ins->output.len);
+	bsdconv_free(ins->output.data);
+	return r;
+}
+#endif
 
 static PyObject *
 py_bsdconv_conv_chunk_last(PyObject *self, PyObject *args)
@@ -301,6 +354,32 @@ py_bsdconv_conv_chunk_last(PyObject *self, PyObject *args)
 	bsdconv_free(ins->output.data);
 	return r;
 }
+
+#if PY_MAJOR_VERSION >= 3
+static PyObject *
+py_bsdconv_uconv_chunk_last(PyObject *self, PyObject *args)
+{
+	static PyObject *r;
+	struct bsdconv_instance *ins;
+	char *s;
+	int l;
+	if (!PyArg_ParseTuple(args, "z#", &s, &l))
+		return NULL;
+	ins=((Bsdconv *) self)->ins;
+
+	ins->output_mode=BSDCONV_AUTOMALLOC;
+	ins->input.data=s;
+	ins->input.len=l;
+	ins->input.flags=0;
+	ins->input.next=NULL;
+	ins->flush=1;
+	bsdconv(ins);
+
+	r=Py_BuildValue(BUILD_UTF8, ins->output.data, ins->output.len);
+	bsdconv_free(ins->output.data);
+	return r;
+}
+#endif
 
 static PyObject *
 py_bsdconv_conv_file(PyObject *self, PyObject *args)
@@ -602,6 +681,14 @@ static PyMethodDef Bsdconv_methods[] = {
 		PyDoc_STR("conv_chunk(s) -> Perform conversion without initializing and flushing")},
 	{"conv_chunk_last",	py_bsdconv_conv_chunk_last,	METH_VARARGS,
 		PyDoc_STR("conv_chunk_last(s) -> Perform conversion without initializing")},
+#if PY_MAJOR_VERSION >= 3
+	{"uconv",	py_bsdconv_uconv,	METH_VARARGS,
+		PyDoc_STR("uconv(s) -> Perform conversion with UTF-8 output, return unicode (python2) or str (python3)")},
+	{"uconv_chunk",	py_bsdconv_uconv_chunk,	METH_VARARGS,
+		PyDoc_STR("uconv_chunk(s) -> Perform conversion with UTF-8 output without initializing and flushing, return unicode (python2) or str (python3)")},
+	{"uconv_chunk_last",	py_bsdconv_uconv_chunk_last,	METH_VARARGS,
+		PyDoc_STR("uconv_chunk_last(s) -> Perform conversion with UTF-8 output without initializing, return unicode (python2) or str (python3)")},
+#endif
 	{"conv_file",	py_bsdconv_conv_file,	METH_VARARGS,
 		PyDoc_STR("conv_file(from_file, to_file) -> Perform conversion with given filename")},
 	{"testconv",	py_bsdconv_testconv,	METH_VARARGS,
