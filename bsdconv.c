@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 Kuan-Chung Chiu <buganini@gmail.com>
+ * Copyright (c) 2009-2020 Kuan-Chung Chiu <buganini@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -23,6 +23,7 @@
  * SUCH DAMAGE.
  */
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <bsdconv.h>
 
@@ -237,8 +238,8 @@ py_bsdconv_conv(PyObject *self, PyObject *args)
 	static PyObject *r;
 	struct bsdconv_instance *ins;
 	char *s;
-	int l;
-	if (!PyArg_ParseTuple(args, "z#", &s,&l))
+	Py_ssize_t l;
+	if (!PyArg_ParseTuple(args, "z#", &s, &l))
 		return NULL;
 	ins=((Bsdconv *) self)->ins;
 
@@ -263,8 +264,8 @@ py_bsdconv_uconv(PyObject *self, PyObject *args)
 	static PyObject *r;
 	struct bsdconv_instance *ins;
 	char *s;
-	int l;
-	if (!PyArg_ParseTuple(args, "z#", &s,&l))
+	Py_ssize_t l;
+	if (!PyArg_ParseTuple(args, "z#", &s, &l))
 		return NULL;
 	ins=((Bsdconv *) self)->ins;
 
@@ -289,8 +290,8 @@ py_bsdconv_conv_chunk(PyObject *self, PyObject *args)
 	static PyObject *r;
 	struct bsdconv_instance *ins;
 	char *s;
-	int l;
-	if (!PyArg_ParseTuple(args, "z#", &s,&l))
+	Py_ssize_t l;
+	if (!PyArg_ParseTuple(args, "z#", &s, &l))
 		return NULL;
 	ins=((Bsdconv *) self)->ins;
 
@@ -313,8 +314,8 @@ py_bsdconv_uconv_chunk(PyObject *self, PyObject *args)
 	static PyObject *r;
 	struct bsdconv_instance *ins;
 	char *s;
-	int l;
-	if (!PyArg_ParseTuple(args, "z#", &s,&l))
+	Py_ssize_t l;
+	if (!PyArg_ParseTuple(args, "z#", &s, &l))
 		return NULL;
 	ins=((Bsdconv *) self)->ins;
 
@@ -337,7 +338,7 @@ py_bsdconv_conv_chunk_last(PyObject *self, PyObject *args)
 	static PyObject *r;
 	struct bsdconv_instance *ins;
 	char *s;
-	int l;
+	Py_ssize_t l;
 	if (!PyArg_ParseTuple(args, "z#", &s, &l))
 		return NULL;
 	ins=((Bsdconv *) self)->ins;
@@ -362,7 +363,7 @@ py_bsdconv_uconv_chunk_last(PyObject *self, PyObject *args)
 	static PyObject *r;
 	struct bsdconv_instance *ins;
 	char *s;
-	int l;
+	Py_ssize_t l;
 	if (!PyArg_ParseTuple(args, "z#", &s, &l))
 		return NULL;
 	ins=((Bsdconv *) self)->ins;
@@ -451,8 +452,8 @@ py_bsdconv_testconv(PyObject *self, PyObject *args)
 {
 	struct bsdconv_instance *ins;
 	char *s;
-	int l;
-	if (!PyArg_ParseTuple(args, "z#", &s,&l))
+	Py_ssize_t l;
+	if (!PyArg_ParseTuple(args, "z#", &s, &l))
 		return NULL;
 	ins=((Bsdconv *) self)->ins;
 
@@ -495,7 +496,7 @@ py_bsdconv_testconv_chunk_last(PyObject *self, PyObject *args)
 {
 	struct bsdconv_instance *ins;
 	char *s;
-	int l;
+	Py_ssize_t l;
 	if (!PyArg_ParseTuple(args, "z#", &s, &l))
 		return NULL;
 	ins=((Bsdconv *) self)->ins;
