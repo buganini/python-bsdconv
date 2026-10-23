@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from bsdconv import Bsdconv
 
 sin="utf-8:utf-8,ascii"

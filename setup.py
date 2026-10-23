@@ -1,10 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-from distutils.core import setup,Extension
+from setuptools import setup, Extension
 
 setup(name='bsdconv',
       version='11.3.0',
       description='bsdconv library',
+      python_requires='>=3.8',
       author='Buganini',
       author_email='buganini@gmail.com',
       url='http://github.com/buganini/bsdconv',

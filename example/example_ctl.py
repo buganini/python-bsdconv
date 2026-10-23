@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os
 import sys
 from bsdconv import Bsdconv
@@ -11,16 +11,16 @@ p=Bsdconv("utf-8:score-train:null")
 if not p:
 	print(Bsdconv.error())
 	del p
-	sys.exit()
+	sys.exit(1)
 
 p.ctl(Bsdconv.CTL_ATTACH_SCORE, a[0], 0)
 p.ctl(Bsdconv.CTL_ATTACH_OUTPUT_FILE, clist, 0)
 
 p.init()
-f=open(sys.argv[1])
+f=open(sys.argv[1], "rb")
 s=f.read(1024)
 while s:
-	p.conv_chunk(s),
+	p.conv_chunk(s)
 	s=f.read(1024)
 
 p.conv_chunk_last(s)
