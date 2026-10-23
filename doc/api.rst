@@ -22,9 +22,22 @@ Python binding API
 
 		Initialize/Reset bsdconv converter
 
-	.. py:method:: ctl(arg_ptr_obj, arg_int)
+	.. py:method:: ctl(command, file, value)
 
 		Manipulate the underlying codec parameters
+
+		``file`` accepts an ``io.IOBase`` with a file descriptor, a
+		``Bsdconv_file``, or ``None`` for commands without a file argument.
+		``CTL_ATTACH_SCORE`` requires a seekable file opened for reading and
+		writing, without append mode. ``CTL_ATTACH_OUTPUT_FILE`` requires a
+		writable file; passing ``None`` detaches its current output file.
+
+		The converter flushes the supplied file and owns a duplicate descriptor
+		until it is replaced, detached, or the converter is destroyed. The
+		caller may close the original file after attachment. The descriptors
+		share their file position, so do not use the original file for I/O
+		while it is attached. Invalid files raise an exception without replacing
+		the existing attachment.
 
 	.. py:method:: conv(s)
 

@@ -26,11 +26,19 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <bsdconv.h>
+#include <errno.h>
 
 #ifndef WIN32
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fcntl.h>
+#else
+#include <io.h>
+#define dup _dup
+#define close _close
+#define fileno _fileno
+#define fdopen _fdopen
 #endif
 
 #define IBUFLEN 1024
@@ -46,6 +54,7 @@
 typedef struct {
 	PyObject_HEAD
 	struct bsdconv_instance *ins;
+	PyObject *ctl_files;
 } Bsdconv;
 
 typedef struct {
@@ -117,41 +126,148 @@ py_bsdconv_init(PyObject *self, PyObject *args)
 }
 
 
+/* Give the converter its own stream; callers may close their original file. */
+static PyObject *
+py_bsdconv_ctl_file(PyObject *file, int ctl)
+{
+	int fd;
+	if(PyObject_TypeCheck(file, &Bsdconv_File_Type)){
+		FILE *fp=((Bsdconv_file *)file)->fp;
+		if(fp==NULL){
+			PyErr_SetString(PyExc_ValueError, "file is not open");
+			return NULL;
+		}
+		if(fflush(fp)!=0)
+			return PyErr_SetFromErrno(PyExc_OSError);
+		fd=fileno(fp);
+	}else{
+		PyObject *io=PyImport_ImportModule("io");
+		if(io==NULL)
+			return NULL;
+		PyObject *iobase=PyObject_GetAttrString(io, "IOBase");
+		Py_DECREF(io);
+		if(iobase==NULL)
+			return NULL;
+		int is_io=PyObject_IsInstance(file, iobase);
+		Py_DECREF(iobase);
+		if(is_io<0)
+			return NULL;
+		if(!is_io){
+			PyErr_SetString(PyExc_TypeError, "expected an io.IOBase or Bsdconv_file");
+			return NULL;
+		}
+		fd=PyObject_AsFileDescriptor(file);
+		if(fd<0)
+			return NULL;
+		PyObject *result=PyObject_CallMethod(file, "flush", NULL);
+		if(result==NULL)
+			return NULL;
+		Py_DECREF(result);
+		fd=PyObject_AsFileDescriptor(file);
+		if(fd<0)
+			return NULL;
+	}
+
+#ifndef WIN32
+	int flags=fcntl(fd, F_GETFL);
+	if(flags<0)
+		return PyErr_SetFromErrno(PyExc_OSError);
+	if((ctl==BSDCONV_CTL_ATTACH_OUTPUT_FILE && (flags & O_ACCMODE)==O_RDONLY)
+		|| (ctl!=BSDCONV_CTL_ATTACH_OUTPUT_FILE && (flags & O_ACCMODE)!=O_RDWR)){
+		PyErr_SetString(PyExc_ValueError, "file has incompatible access mode");
+		return NULL;
+	}
+	if(ctl==BSDCONV_CTL_ATTACH_SCORE && (flags & O_APPEND)){
+		PyErr_SetString(PyExc_ValueError, "score file must not use append mode");
+		return NULL;
+	}
+#endif
+	Bsdconv_file *owned=PyObject_NEW(Bsdconv_file, &Bsdconv_File_Type);
+	if(owned==NULL)
+		return NULL;
+	owned->fp=NULL;
+	/* Do not leak the attachment into subsequently executed programs. */
+#ifndef WIN32
+	int copy=fcntl(fd, F_DUPFD_CLOEXEC, 0);
+#else
+	int copy=dup(fd);
+#endif
+	if(copy<0){
+		Py_DECREF(owned);
+		return PyErr_SetFromErrno(PyExc_OSError);
+	}
+	owned->fp=fdopen(copy, ctl==BSDCONV_CTL_ATTACH_OUTPUT_FILE ? "wb" : "rb+");
+	if(owned->fp==NULL){
+		int error=errno;
+		close(copy);
+		Py_DECREF(owned);
+		errno=error;
+		return PyErr_SetFromErrno(PyExc_OSError);
+	}
+	if(setvbuf(owned->fp, NULL, _IONBF, 0)!=0){
+		Py_DECREF(owned);
+		PyErr_SetString(PyExc_OSError, "cannot disable attached file buffering");
+		return NULL;
+	}
+	if(ctl==BSDCONV_CTL_ATTACH_SCORE && fseek(owned->fp, 0, SEEK_CUR)!=0){
+		int error=errno;
+		Py_DECREF(owned);
+		errno=error;
+		return PyErr_SetFromErrno(PyExc_OSError);
+	}
+	return (PyObject *)owned;
+}
+
 static PyObject *
 py_bsdconv_ctl(PyObject *self, PyObject *args)
 {
-	struct bsdconv_instance *ins;
-	int ctl;
-	PyObject *a1;
-	int a2;
-	void *ptr=NULL;
-
-	if (!PyArg_ParseTuple(args, "iOi", &ctl, &a1, &a2))
+	Bsdconv *object=(Bsdconv *)self;
+	int ctl, value;
+	PyObject *file;
+	if(!PyArg_ParseTuple(args, "iOi", &ctl, &file, &value))
 		return NULL;
-
-#if PY_MAJOR_VERSION < 3
-	if (PyObject_TypeCheck (a1, &PyFile_Type)){
-		ptr=PyFile_AsFile(a1);
-#else
-	extern PyTypeObject PyIOBase_Type;
-	if(PyObject_IsInstance(a1, (PyObject *)&PyIOBase_Type)){
-		int fd = PyObject_AsFileDescriptor(a1);
-		ptr=fdopen(fd, "a+");
-#endif
-#if PY_MAJOR_VERSION < 3
-	}else if (PyObject_TypeCheck (a1, &Bsdconv_File_Type)){
-		ptr=((Bsdconv_file *) a1)->fp;
-#else
-	}else if(PyObject_IsInstance(a1, (PyObject *)&Bsdconv_File_Type)){
-		ptr=((Bsdconv_file *) a1)->fp;;
-#endif
+	if(object->ins==NULL){
+		PyErr_SetString(PyExc_ValueError, "invalid bsdconv instance");
+		return NULL;
 	}
-
-	ins=((Bsdconv *) self)->ins;
-	bsdconv_ctl(ins, ctl, ptr, a2);
-
-	Py_INCREF(Py_True);
-	return Py_True;
+	if(ctl==BSDCONV_CTL_ATTACH_SCORE && file==Py_None){
+		PyErr_SetString(PyExc_ValueError, "score file is required");
+		return NULL;
+	}
+	PyObject *owned;
+	if(file==Py_None){
+		owned=Py_None;
+		Py_INCREF(owned);
+	}else{
+		owned=py_bsdconv_ctl_file(file, ctl);
+		if(owned==NULL)
+			return NULL;
+	}
+	PyObject *key=PyLong_FromLong(ctl);
+	if(key==NULL){
+		Py_DECREF(owned);
+		return NULL;
+	}
+	/* Keep the old stream alive until every codec has received its replacement. */
+	PyObject *old=PyDict_GetItemWithError(object->ctl_files, key);
+	if(old==NULL && PyErr_Occurred()){
+		Py_DECREF(key);
+		Py_DECREF(owned);
+		return NULL;
+	}
+	Py_XINCREF(old);
+	if(PyDict_SetItem(object->ctl_files, key, owned)<0){
+		Py_XDECREF(old);
+		Py_DECREF(key);
+		Py_DECREF(owned);
+		return NULL;
+	}
+	void *ptr=owned==Py_None ? NULL : ((Bsdconv_file *)owned)->fp;
+	bsdconv_ctl(object->ins, ctl, ptr, value);
+	Py_XDECREF(old);
+	Py_DECREF(key);
+	Py_DECREF(owned);
+	Py_RETURN_TRUE;
 }
 
 static PyObject *
@@ -229,6 +345,7 @@ py_bsdconv_dealloc(PyObject *self)
 	ins=((Bsdconv *) self)->ins;
 	if(ins!=NULL)
 		bsdconv_destroy(ins);
+	Py_XDECREF(((Bsdconv *)self)->ctl_files);
 	PyObject_DEL(self);
 }
 
@@ -675,7 +792,7 @@ static PyMethodDef Bsdconv_methods[] = {
 	{"init",	py_bsdconv_init,	METH_VARARGS,
 		PyDoc_STR("init() -> Initialize/Reset bsdconv instance")},
 	{"ctl",	py_bsdconv_ctl,	METH_VARARGS,
-		PyDoc_STR("ctl(arg_ptr_obj, arg_int) -> Manipulate the underlying codec parameters")},
+		PyDoc_STR("ctl(command, file, value) -> Manipulate the underlying codec parameters")},
 	{"conv",	py_bsdconv_conv,	METH_VARARGS,
 		PyDoc_STR("conv(s) -> Perform conversion")},
 	{"conv_chunk",	py_bsdconv_conv_chunk,	METH_VARARGS,
@@ -767,9 +884,15 @@ py_bsdconv_NEW(const char *c)
 {
 	Bsdconv *object = NULL;
 	object = PyObject_NEW(Bsdconv, &Bsdconv_Type);
+	if(object==NULL)
+		return NULL;
 	object->ins=NULL;
-	if (object != NULL)
-		object->ins = bsdconv_create(c);
+	object->ctl_files=PyDict_New();
+	if(object->ctl_files==NULL){
+		Py_DECREF(object);
+		return NULL;
+	}
+	object->ins = bsdconv_create(c);
 	return (PyObject *)object;
 }
 
@@ -835,6 +958,8 @@ PyInit_bsdconv(void)
 	if (PyType_Ready(&Bsdconv_Type) < 0){
 		return NULL;
 	}
+	if (PyType_Ready(&Bsdconv_File_Type) < 0)
+		return NULL;
 	m = PyModule_Create(&Bsdconv_Module);
 	if (m == NULL){
 		return NULL;
