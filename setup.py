@@ -3,7 +3,7 @@
 from setuptools import setup, Extension
 
 setup(name='bsdconv',
-      version='11.3.0',
+      version='11.7.0',
       description='bsdconv library',
       python_requires='>=3.8',
       author='Buganini',
