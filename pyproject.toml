@@ -1,3 +1,19 @@
 [build-system]
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "bsdconv"
+version = "11.7.0"
+description = "bsdconv library"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [{name = "Buganini Chiu", email = "buganini@b612.tw"}]
+
+[project.urls]
+Homepage = "https://github.com/buganini/bsdconv"
+
+[tool.setuptools]
+# Only the bsdconv C extension is distributed; do not discover Python packages.
+packages = []
+py-modules = []
